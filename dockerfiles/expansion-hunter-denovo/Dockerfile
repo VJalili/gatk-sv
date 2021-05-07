@@ -1,4 +1,5 @@
 FROM alpine:latest
+COPY --chmod=777 ./run_tests.sh /usr/local/bin/run_tests.sh
 RUN apk --no-cache add curl && \
     wget https://github.com/Illumina/ExpansionHunterDenovo/releases/download/v0.9.0/ExpansionHunterDenovo-v0.9.0-linux_x86_64.tar.gz && \
     mkdir ehdn_extract && \
