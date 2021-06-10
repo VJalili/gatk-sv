@@ -1,0 +1,19 @@
+on:
+  pull_request:
+    paths:
+      - '/src/'
+      - '/dockerfiles/'
+
+jobs:
+  test_build:
+    runs-on: ubuntu-latest
+    name: Test building docker images
+    strategy:
+      matrix:
+        python-version: ['3.8']
+    steps:
+      - name: Display the path
+        run: |
+          import os
+          print(os.environ['PATH'])
+        shell: python
