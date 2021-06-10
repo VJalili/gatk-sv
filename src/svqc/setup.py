@@ -22,3 +22,12 @@ setup(name='svqc',
       tests_require=['nose'],
       install_requires=['pandas']
       )
+
+# TEST
+# Test
+# TEST
+# TEST
+# TEST
+# TEST
+# TEST
+# TEST
