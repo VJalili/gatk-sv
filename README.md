@@ -1,26 +1,6 @@
 # GATK-SV
 
-A struc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-tural variation discovery pipeline for Illumina short-read whole-genome sequencing (WGS) data.
+A structural variation discovery pipeline for Illumina short-read whole-genome sequencing (WGS) data.
 
 ## Table of Contents
 * [Requirements](#requirements)
