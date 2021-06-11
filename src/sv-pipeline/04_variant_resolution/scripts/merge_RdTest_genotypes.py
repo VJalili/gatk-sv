@@ -31,7 +31,7 @@ def main():
 
     # Pivot back out so input genotype matrix is all integers
     #  pivot = gt.pivot_table(index='chr start end cnvID'.split(),
-                           #  columns='sample', values='genotype').reset_index()
+    #  columns='sample', values='genotype').reset_index()
     #  samples = [c for c in pivot.columns if c not in 'chr start end cnvID'.split()]
     #  pivot[samples] = pivot[samples].astype(int)
     #  pivot.to_csv(args.genotypes, index=False, sep='\t')
