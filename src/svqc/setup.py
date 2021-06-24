@@ -24,7 +24,6 @@ setup(name='svqc',
       )
 
 # TEST
-# Test
 # TEST
 # TEST
 # TEST
