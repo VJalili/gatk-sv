@@ -5,6 +5,7 @@ import "MakeBincovMatrix.wdl" as mbm
 import "PloidyEstimation.wdl" as pe
 import "RawVcfQC.wdl" as vcfqc
 import "WGD.wdl" as wgd
+import "MedianCov.wdl" as mc
 
 # Runs single sample tasks on collected evidence:
 #   - Ploidy determination
@@ -53,6 +54,7 @@ workflow Module00b {
     RuntimeAttr? wgd_build_runtime_attr
     RuntimeAttr? wgd_score_runtime_attr
     RuntimeAttr? runtime_attr_bincov_attr
+    RuntimeAttr? runtime_attr_mediancov_attr
   }
 
   call mbm.MakeBincovMatrix as MakeBincovMatrix {
@@ -64,6 +66,15 @@ workflow Module00b {
       sv_base_mini_docker = sv_base_mini_docker,
       sv_base_docker = sv_base_docker,
       runtime_attr_override = runtime_attr_bincov_attr
+  }
+
+  call mc.MedianCov as MedianCov{
+    input:
+      bincov_matrix = MakeBincovMatrix.merged_bincov,
+      cohort_id = batch,
+      sv_pipeline_qc_docker = sv_pipeline_qc_docker,
+      runtime_attr = runtime_attr_mediancov_attr
+
   }
 
   if (run_ploidy) {
@@ -89,7 +100,7 @@ workflow Module00b {
   }
 
   if (run_vcf_qc) {
-    if (defined(delly_vcfs)) {
+    if (defined(delly_vcfs) && (length(select_first([delly_vcfs])) > 0)) {
       call vcfqc.RawVcfQC as RawVcfQC_Delly {
         input:
           vcfs = select_first([delly_vcfs]),
@@ -99,7 +110,7 @@ workflow Module00b {
           runtime_attr_outlier = runtime_attr_qc_outlier
       }
     }
-    if (defined(manta_vcfs)) {
+    if (defined(manta_vcfs) && (length(select_first([manta_vcfs])) > 0)) {
       call vcfqc.RawVcfQC as RawVcfQC_Manta {
         input:
           vcfs = select_first([manta_vcfs]),
@@ -109,7 +120,7 @@ workflow Module00b {
           runtime_attr_outlier = runtime_attr_qc_outlier
       }
     }
-    if (defined(melt_vcfs)) {
+    if (defined(melt_vcfs) && (length(select_first([melt_vcfs])) > 0)) {
       call vcfqc.RawVcfQC as RawVcfQC_Melt {
         input:
           vcfs = select_first([melt_vcfs]),
@@ -119,7 +130,7 @@ workflow Module00b {
           runtime_attr_outlier = runtime_attr_qc_outlier
       }
     }
-    if (defined(wham_vcfs)) {
+    if (defined(wham_vcfs) && (length(select_first([wham_vcfs])) > 0)) {
       call vcfqc.RawVcfQC as RawVcfQC_Wham {
         input:
           vcfs = select_first([wham_vcfs]),
@@ -150,5 +161,6 @@ workflow Module00b {
 
     File bincov_matrix = MakeBincovMatrix.merged_bincov
     File bincov_matrix_index = MakeBincovMatrix.merged_bincov_idx
+    File bincov_median = MedianCov.medianCov
   }
 }

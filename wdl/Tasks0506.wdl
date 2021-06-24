@@ -19,7 +19,7 @@ task ZcatCompressedFiles {
   }
 
   String output_file_name = select_first([outfile_name, "output.txt.gz"])
-  Boolean do_filter = defined(filter_command) && filter_command != ""
+  Boolean do_filter = defined(filter_command) && select_first([filter_command]) != ""
 
   # when filtering/sorting/etc, memory usage will likely go up (much of the data will have to
   # be held in memory or disk while working, potentially in a form that takes up more space)
@@ -60,7 +60,7 @@ task ZcatCompressedFiles {
   }
 
   output {
-    File outfile=outfile_name
+    File outfile=output_file_name
   }
 }
 
@@ -81,7 +81,7 @@ task CatUncompressedFiles {
   }
 
   String output_file_name = select_first([outfile_name, "output.txt"])
-  Boolean do_filter = defined(filter_command) && filter_command != ""
+  Boolean do_filter = defined(filter_command) && select_first([filter_command]) != ""
 
   # when filtering/sorting/etc, memory usage will likely go up (much of the data will have to
   # be held in memory or disk while working, potentially in a form that takes up more space)
