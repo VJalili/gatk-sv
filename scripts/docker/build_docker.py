@@ -471,7 +471,7 @@ if __name__ == "__main__":
         this_script_path = os.path.realpath('__file__')
     
         print("----------------------------TEST-------------------------------")
-        print(sys.args)
+        print(sys.argv)
         print("----------")
 
         parse_and_build(project_args, this_script_path)
