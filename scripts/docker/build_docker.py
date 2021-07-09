@@ -168,6 +168,8 @@ class Docker_Build:
 
     def build(self, built_time_args_dict):
 
+        print(built_time_args_dict)
+        return
         # get to the requested directory
         docker_build_command = "cd " + self.build_context + " && \\\n"
         # standard build command
