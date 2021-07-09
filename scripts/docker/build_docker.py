@@ -470,6 +470,5 @@ if __name__ == "__main__":
     
     print("----------------------------TEST-------------------------------")
     print(f"\n\n\n\n{project_args}")
-    exit()
 
         #parse_and_build(project_args, this_script_path)
