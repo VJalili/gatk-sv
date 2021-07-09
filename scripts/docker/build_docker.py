@@ -467,8 +467,9 @@ if __name__ == "__main__":
     else:
         project_args = CMD_line_args_parser(sys.argv[1:]).project_args
         this_script_path = os.path.realpath('__file__')
-        
-        print(f"\n\n\n\n{project_args}")
-        exit()
+    
+    print("----------------------------TEST-------------------------------")
+    print(f"\n\n\n\n{project_args}")
+    exit()
 
-        parse_and_build(project_args, this_script_path)
+        #parse_and_build(project_args, this_script_path)
