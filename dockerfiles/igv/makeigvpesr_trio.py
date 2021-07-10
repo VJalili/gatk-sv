@@ -5,7 +5,7 @@ import argparse
 # python makeigvpesr_cram.py varfile fasta sample ped cram_list buffer chromosome
 # bash IL.DUP.HG00514.V2.sh
 # bash igv.sh -b IL.DUP.HG00514.V2.txt
-
+lkjlkjlkjlkjlkjlkjlkjlkj
 
 parser = argparse.ArgumentParser("makeigvsplit_cram.py")
 parser.add_argument('varfile', type=str,
