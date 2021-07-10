@@ -43,10 +43,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install termcolor
 
-      - name: Compose Image Tag
+      - name: Compile Args
         id: compose_image_tag
         run: |
-          echo "::set-output name=action_fruit::strawberry"
+          if [ github.event_name == 'pull_request' ]
+          then
+            x="AAAAA"
+          else
+            x="BBBBB"
+          fi
+          echo "::set-output name=action_fruit::${x}"
 
       - name: Run build_docker.py [Pull Request]
         if: github.event_name == 'pull_request'
