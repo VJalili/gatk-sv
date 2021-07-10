@@ -62,7 +62,7 @@ jobs:
           echo $MERGE_COMMIT_SHA
           TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
           DATE="$(cut -d'T' -f1 <<<$TIME_STAMP)"
-          DATE2="$($DATE//-)"
+          DATE2="${DATE//-}"
           echo $TIME_STAMP
           echo $DATE
           echo $DATE2
