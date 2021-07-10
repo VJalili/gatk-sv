@@ -44,6 +44,6 @@ jobs:
 
       - name: Run build_docker.py
         run: |
-          echo "$GITHUB_CONTEXT"
+          echo ${GITHUB_CONTEXT}
           cd ./scripts/docker/
           python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
