@@ -48,7 +48,9 @@ jobs:
         run: |
           echo "------"
           PR_NUM2=${{ github.event.number }}
+          COMMIT_SHA2=${{ github.event.pull_request.head.sha }}
           echo $PR_NUM2
+          echo $COMMIT_SHA2
           # cd ./scripts/docker/
           # python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
 
