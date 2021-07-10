@@ -46,7 +46,7 @@ jobs:
       - name: Run build_docker.py [Pull Request]
         if: github.event_name == 'pull_request'
         run: |
-          echo ${github.event.number}
+          echo ${{ github.event.number }}
           cd ./scripts/docker/
           python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
 
