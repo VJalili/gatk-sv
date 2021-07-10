@@ -21,7 +21,7 @@ for (i in RPackages)
       install.packages((i), repos = "http://cran.rstudio.com")
       library(i, character.only = TRUE)
     } else {
-      stop (paste("Unable to run script without package:           ", i, sep = ""))
+      stop (paste("Unable to run script without package:             ", i, sep = ""))
     }
   } else {
     library(i, character.only = TRUE)
