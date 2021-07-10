@@ -53,6 +53,8 @@ jobs:
         if: github.event_name == 'push'
         run: |
           echo "-----------"
+          TEST="hello"
+          echo $TEST
           MERGE_COMMIT="$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
           echo ${MERGE_COMMIT}
           echo "-----------"
