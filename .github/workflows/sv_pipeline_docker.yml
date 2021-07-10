@@ -52,6 +52,8 @@ jobs:
       - name: Run build_docker.py [Push]
         if: github.event_name == 'push'
         run: |
+          MERGE_COMMIT="$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1
+          echo ${MERGE_COMMIT}
           echo ${GITHUB_CONTEXT}
           echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
           cd ./scripts/docker/
