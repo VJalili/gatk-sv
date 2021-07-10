@@ -43,7 +43,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install termcolor
 
-      - name: Run build_docker.py
+      - name: Run build_docker.py [Pull Request]
+        if: github.event_name == 'pull_request'
         run: |
           echo ${GITHUB_CONTEXT}
           echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
