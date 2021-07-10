@@ -61,9 +61,9 @@ jobs:
           MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
           echo $MERGE_COMMIT_SHA
           TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
+          DATE="$(cut -d'T' -f1 <<<$TIME_STAMP)"
           echo $TIME_STAMP
-          IFS='T' read -r ADDR <<< "$TIME_STAMP"
-          echo "${ADDR[0]}"
+          echo $DATE
           echo "-------++----"
           echo ${{steps.compose_image_tag.outputs.action_fruit}}
           echo "-----------"
