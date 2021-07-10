@@ -63,7 +63,7 @@ jobs:
           MERGE_COMMIT=${GITHUB_CONTEXT}| jq '.event.commits[].id'
           echo $MERGE_COMMIT
           echo "-----------"
-          echo ${{steps.compose_image_tag.outputs.*}}
+          echo ${{steps.compose_image_tag.outputs.action_fruit}}
           echo "-----------"
           echo ${GITHUB_CONTEXT}
           echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
