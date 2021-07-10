@@ -24,6 +24,7 @@ jobs:
     env:
       PR_NUM: ${{ github.event.number }}
       COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+      GITHUB_CONTEXT: ${{ toJson(github) }}
     strategy:
       matrix:
         python-version: ['3.8']
@@ -43,5 +44,6 @@ jobs:
 
       - name: Run build_docker.py
         run: |
+          echo "$GITHUB_CONTEXT"
           cd ./scripts/docker/
           python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
