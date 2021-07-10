@@ -50,3 +50,4 @@ jobs:
           echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
           cd ./scripts/docker/
           python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
+
