@@ -60,6 +60,8 @@ jobs:
           echo "--------++---"
           MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
           echo $MERGE_COMMIT_SHA
+          TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
+          echo $TIME_STAMP
           echo "-------++----"
           echo ${{steps.compose_image_tag.outputs.action_fruit}}
           echo "-----------"
