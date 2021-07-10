@@ -57,10 +57,10 @@ jobs:
       - name: Run build_docker.py [Push]
         if: github.event_name == 'push'
         run: |
-          echo "-----------"
-          COMMIT=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
-          echo $COMMIT
-          echo "-----------"
+          echo "--------++---"
+          MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
+          echo MERGE_COMMIT_SHA
+          echo "-------++----"
           echo ${{steps.compose_image_tag.outputs.action_fruit}}
           echo "-----------"
           echo ${GITHUB_CONTEXT}
