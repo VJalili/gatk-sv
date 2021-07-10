@@ -43,6 +43,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install termcolor
 
+      - name: Compose Image Tag
+        id: compose_image_tag
+        run: |
+          echo "::set-output name=action_fruit::strawberry"
+
       - name: Run build_docker.py [Pull Request]
         if: github.event_name == 'pull_request'
         run: |
@@ -57,6 +62,8 @@ jobs:
           echo $TEST
           MERGE_COMMIT=${GITHUB_CONTEXT}| jq '.event.commits[].id'
           echo $MERGE_COMMIT
+          echo "-----------"
+          echo ${{steps.compose_image_tag.outputs.*}}
           echo "-----------"
           echo ${GITHUB_CONTEXT}
           echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
