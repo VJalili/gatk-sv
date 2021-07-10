@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-20.04
     name: Build GATK-SV Pipeline Docker Images
     env:
-      PR_NUM: ${{ github.event.number }}
-      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
       GITHUB_CONTEXT: ${{ toJson(github) }}
     strategy:
       matrix:
@@ -47,12 +45,12 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           echo "------"
-          PR_NUM2=${{ github.event.number }}
-          COMMIT_SHA2=${{ github.event.pull_request.head.sha }}
-          echo $PR_NUM2
-          echo $COMMIT_SHA2
-          # cd ./scripts/docker/
-          # python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
+          PR_NUM=${{ github.event.number }}
+          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          IMAGE_TAG=${PR_NUM}-${COMMIT_SHA::8}
+          echo "::debug::Image tag: $IMAGE_TAG"
+          cd ./scripts/docker/
+          python build_docker.py --targets all --image-tag $IMAGE_TAG
 
       - name: Run build_docker.py [Push]
         if: github.event_name == 'push'
