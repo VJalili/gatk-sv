@@ -43,36 +43,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install termcolor
 
-      - name: Compile Args
-        id: compile_args
-        run: |
-          if [ github.event_name == 'pull_request' ]
-          then
-            x="AAAAA"
-          else
-            # Get push/merge commit SHA and time stamp
-            # from Github's context json.
-            MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
-            TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
-
-            # Extract date, without dash, from time stamp; e.g.,
-            # from: 2021-07-09T20:43:27-07:00
-            # to:   20210709
-            DATE="$(cut -d'T' -f1 <<<${TIME_STAMP//-})"
-            image_tag=$DATE-${MERGE_COMMIT_SHA::8}
-          fi
-          echo "::set-output name=image_tag::${image_tag}"
-
       - name: Run build_docker.py [Pull Request]
         if: github.event_name == 'pull_request'
         run: |
+          echo ${github.event.number}
           cd ./scripts/docker/
           python build_docker.py --targets all --image-tag ${PR_NUM}-${COMMIT_SHA::8}
 
       - name: Run build_docker.py [Push]
         if: github.event_name == 'push'
         run: |
-          # Get push/merge commit SHA and time stamp
+          # Get push/merge commit SHA and its time stamp
           # from Github's context json.
           MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
           TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
