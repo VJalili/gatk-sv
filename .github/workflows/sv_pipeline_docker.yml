@@ -44,15 +44,18 @@ jobs:
           pip install termcolor
 
       - name: Compile Args
-        id: compose_image_tag
+        id: compile_args
         run: |
           if [ github.event_name == 'pull_request' ]
           then
             x="AAAAA"
           else
-            x="BBBBB"
+            MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
+            TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
+            DATE="$(cut -d'T' -f1 <<<${TIME_STAMP//-})"
+            image_tag=${MERGE_COMMIT_SHA::8}
           fi
-          echo "::set-output name=action_fruit::${x}"
+          echo "::set-output name=image_tag::${image_tag}"
 
       - name: Run build_docker.py [Pull Request]
         if: github.event_name == 'pull_request'
@@ -70,9 +73,9 @@ jobs:
           DATE="$(cut -d'T' -f1 <<<${TIME_STAMP//-})"
           echo $TIME_STAMP
           echo $DATE
-          echo "-------++----"
-          echo ${{steps.compose_image_tag.outputs.action_fruit}}
-          echo "-----------"
+          echo "-------***********----"
+          echo ${{steps.compile_args.outputs.image_tag}}
+          echo "-------***********----"
           echo ${GITHUB_CONTEXT}
           echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
           cd ./scripts/docker/

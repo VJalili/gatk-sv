@@ -470,7 +470,7 @@ if __name__ == "__main__":
         project_args = CMD_line_args_parser(sys.argv[1:]).project_args
         this_script_path = os.path.realpath('__file__')
     
-        print("---*-*-*****--++------TEST------------------------------")
+        print("---*-***-*****--++------TEST------------------------------")
         print(sys.argv)
         print("----------")
 
