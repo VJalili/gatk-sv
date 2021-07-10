@@ -58,8 +58,7 @@ jobs:
         if: github.event_name == 'push'
         run: |
           echo "-----------"
-          MERGE_COMMIT=echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
-          echo $MERGE_COMMIT
+          echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'
           echo "-----------"
           echo ${{steps.compose_image_tag.outputs.action_fruit}}
           echo "-----------"
