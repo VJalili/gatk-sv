@@ -60,7 +60,8 @@ jobs:
           echo "-----------"
           TEST="hello"
           echo $TEST
-          MERGE_COMMIT=""$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'"
+          CONTEXT="$GITHUB_CONTEXT"
+          MERGE_COMMIT="$CONTEXT| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g'"
           echo $MERGE_COMMIT
           echo "-----------"
           echo ${{steps.compose_image_tag.outputs.action_fruit}}
