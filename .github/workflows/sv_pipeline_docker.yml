@@ -55,7 +55,7 @@ jobs:
           echo "-----------"
           TEST="hello"
           echo $TEST
-          MERGE_COMMIT="$GITHUB_CONTEXT"
+          MERGE_COMMIT="$GITHUB_CONTEXT"| jq '.event.commits[].id'
           echo $MERGE_COMMIT
           echo "-----------"
           echo ${GITHUB_CONTEXT}
