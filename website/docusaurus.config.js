@@ -7,8 +7,8 @@ module.exports = {
   tagline: 'Structural Variation Discovery Pipeline',
   url: '...',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw', // or 'warn'
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn', // or 'throw'
   favicon: 'img/favicon.ico',
   organizationName: 'Broad Institute of MIT and Harvard',
   projectName: 'gatk-sv',
