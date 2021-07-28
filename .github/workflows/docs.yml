@@ -3,8 +3,12 @@ name: Website
 on:
   pull_request:
     branches: [dev,website]
+    paths:
+      - 'website/**'
   push:
     branches: [master,website]
+    paths:
+      - 'website/**'
 
 jobs:
   checks:
