@@ -6,7 +6,7 @@ module.exports = {
   title: 'GATK-SV',
   tagline: 'Structural Variation Discovery Pipeline',
   url: 'https://github.com',
-  baseUrl: '/',
+  baseUrl: '/gatk-sv/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn', // or 'throw'
   favicon: 'img/favicon.ico',
