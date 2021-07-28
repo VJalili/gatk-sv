@@ -5,7 +5,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
   title: 'GATK-SV',
   tagline: 'Structural Variation Discovery Pipeline',
-  url: '...',
+  url: 'https://github.com',
   baseUrl: '/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn', // or 'throw'
