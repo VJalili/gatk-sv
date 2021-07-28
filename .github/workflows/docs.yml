@@ -1,4 +1,4 @@
-name: documentation
+name: Website
 
 on:
   pull_request:
