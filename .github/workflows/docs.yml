@@ -8,7 +8,7 @@ on:
 
 jobs:
   checks:
-    name: Build Website
+    name: Build Website [PR]
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
           fi
           npm run build
   gh-release:
-    name: Build & Deploy Website
+    name: Build & Deploy Website [Push]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
