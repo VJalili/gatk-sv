@@ -1,0 +1,47 @@
+---
+sidebar_position: 2
+---
+
+# Module 00b
+
+Runs ploidy estimation, dosage scoring, and
+optionally VCF QC. The results from this
+module can be used for QC and batching.
+
+For large cohorts, we recommend dividing
+samples into smaller batches (~500 samples)
+with ~1:1 male:female ratio.
+
+We also recommend using sex assignments generated
+from the ploidy estimates and incorporating
+them into the PED file.
+
+## Prerequisites:
+* [Module 00a](00a)
+
+## Inputs:
+* Read count files ([Module 00a](00a))
+* (Optional) SV call VCFs ([Module 00a](00a))
+
+## Outputs:
+* Per-sample dosage scores with plots
+* Ploidy estimates, sex assignments, with plots
+* (Optional) Outlier samples detected by call counts
+
+
+## gCNV Training
+Trains a gCNV model for use in [Module 00c](00c).
+The WDL can be found at `/gcnv/trainGCNV.wdl`.
+
+### Prerequisites:
+* [Module 00a](00a)
+* (Recommended) [Module 00b](00b)
+
+### Inputs:
+* Read count files ([Module 00a](00a))
+
+### Outputs:
+* Contig ploidy model tarball
+* gCNV model tarballs
+
+

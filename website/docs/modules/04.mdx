@@ -5,33 +5,36 @@ sidebar_position: 7
 
 # Module 04: Merge Cohort VCFs
 
-Combines filtered variants across batches. The WDL can be found at: `/wdl/MergeCohortVcfs.wdl`.
+Combines filtered variants across batches.
+The WDL can be found at: `/wdl/MergeCohortVcfs.wdl`.
 
 ## Prerequisites:
 * [Module 03](#module03)
 
 ## Inputs:
-* List of filtered PESR VCFs ([Module 03](#module03))
-* List of filtered depth VCFs ([Module 03](#module03))
+* List of filtered PESR VCFs ([Module 03](03))
+* List of filtered depth VCFs ([Module 03](03))
 
 ## Outputs:
 * Combined cohort PESR and depth VCFs
 * Cohort and clustered depth variant BED files
 
 ## Module 04
-Genotypes a batch of samples across unfiltered variants combined across all batches.
+Genotypes a batch of samples across unfiltered
+variants combined across all batches.
 
 ### Prerequisites:
-* [Module 03](#module03)
+* [Module 03](03)
 * Merge Cohort VCFs
 
 ### Inputs:
-* Batch PESR and depth VCFs ([Module 03](#module03))
+* Batch PESR and depth VCFs ([Module 03](03))
 * Cohort PESR and depth VCFs (Merge Cohort VCFs)
-* Batch read count, PE, and SR files ([Module 00c](#module00c))
+* Batch read count, PE, and SR files ([Module 00c](00c))
 
 ### Outputs:
-* Filtered SV (non-depth-only a.k.a. "PESR") VCF with outlier samples excluded
+* Filtered SV (non-depth-only a.k.a. "PESR") VCF
+with outlier samples excluded
 * Filtered depth-only call VCF with outlier samples excluded
 * PED file with outlier samples excluded
 * List of SR pass variants
@@ -43,16 +46,16 @@ Genotypes a batch of samples across unfiltered variants combined across all batc
 Re-genotypes probable mosaic variants across multiple batches.
 
 ### Prerequisites:
-* [Module 04](#module04)
+* [Module 04](04)
 
 ### Inputs:
-* Per-sample median coverage estimates ([Module 00c](#module00c))
-* Pre-genotyping depth VCFs ([Module 03](#module03))
-* Batch PED files ([Module 03](#module03))
+* Per-sample median coverage estimates ([Module 00c](00c))
+* Pre-genotyping depth VCFs ([Module 03](03))
+* Batch PED files ([Module 03](03))
 * Clustered depth variant BED file (Merge Cohort VCFs)
 * Cohort depth VCF (Merge Cohort VCFs)
-* Genotyped depth VCFs ([Module 04](#module04))
-* Genotyped depth RD cutoffs file ([Module 04](#module04))
+* Genotyped depth VCFs ([Module 04](04))
+* Genotyped depth RD cutoffs file ([Module 04](04))
 
 ### Outputs:
 * Re-genotyped depth VCFs

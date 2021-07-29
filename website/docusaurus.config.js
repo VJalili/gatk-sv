@@ -7,12 +7,13 @@ module.exports = {
   tagline: 'Structural Variation Discovery Pipeline',
   url: 'https://github.com',
   baseUrl: '/gatk-sv/',
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn', // or 'throw'
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw', // options: 'throw', 'warn'
   favicon: 'img/favicon.ico',
   organizationName: 'Broad Institute of MIT and Harvard',
   projectName: 'gatk-sv',
   themeConfig: {
+    hideableSidebar: true,
     navbar: {
       title: 'GATK-SV',
       logo: {
@@ -28,6 +29,11 @@ module.exports = {
         },
         /** In case we're interested in having blog posts. */
         /** {to: '/blog', label: 'Blog', position: 'left'}, */
+        {
+          href: 'https://github.com/broadinstitute/gatk-sv/issues',
+          label: 'Questions',
+          position: 'right'
+        },
         {
           href: 'https://github.com/broadinstitute/gatk-sv',
           label: 'GitHub',
