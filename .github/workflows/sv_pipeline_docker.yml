@@ -43,6 +43,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install termcolor
 
+      - name: Determine Target Images
+        run: |
+          BASE_COMMIT_SHA=""
+          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          CHANGED_FILES=$(git diff --name-only $BASE_COMMIT_SHA $COMMIT_SHA)
+          TARGETS=()
+          try_add_target() {
+            if [[ ! " ${TARGETS[*]} " =~ $1 ]]; then
+              TARGETS+=($1)
+            fi
+          }
+          for i in "${CHANGED_FILES[@]}"
+          do
+            if [[ $i == *"/src/svtk"* ||
+                  $i == *"/src/sv-pipeline"* ||
+                  $i == *"/src/svtest"* ||
+                  $i == *"/src/svqc"* ]]; then
+              try_add_target "sv-pipeline"
+              try_add_target "sv-pipeline-base"
+              try_add_target "sv-pipeline-children-r"
+            fi
+            if [[ $i == *"/src/RdTest"* ]]; then
+              try_add_target "sv-pipeline-rdtest"
+            fi
+            if [[ $i == *"/src/WGD"* ]]; then
+              try_add_target "sv-pipeline-qc"
+              try_add_target "cnmops"
+            fi
+            if [[ $i == *"/scripts/docker/resources.Dockerfile"* ]]; then
+              try_add_target "gatksv-pipeline-v1-resources"
+            fi
+          done
+
       - name: Run build_docker.py [Pull Request]
         if: github.event_name == 'pull_request'
         run: |
