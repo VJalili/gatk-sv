@@ -47,14 +47,16 @@ jobs:
 
       - name: Determine Target Images
         run: |
-          echo "$GITHUB_CONTEXT"
-
+          # The commit SHA of the base branch (ideally broadinstitute/gatk-sv:master)
+          # this PR tagets.
           BASE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.pull_request.base.sha')
-          echo "$BASE_COMMIT_SHA"
-          echo "test---test"
 
+          # The commit SHA of the commit that triggered the action.
           COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+
+          # A list of all the files changed between the current commit & base.
           CHANGED_FILES=$(git diff --name-only $BASE_COMMIT_SHA $COMMIT_SHA)
+
           TARGETS=()
           try_add_target() {
             if [[ ! " ${TARGETS[*]} " =~ $1 ]]; then
