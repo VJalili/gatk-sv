@@ -13,6 +13,7 @@ on:
   pull_request:
     branches:
       - master
+      - test_branch
     paths:
       - 'src/**'
       - 'dockerfiles/**'
@@ -45,6 +46,10 @@ jobs:
 
       - name: Determine Target Images
         run: |
+
+          # DEBUG
+          echo "$GITHUB_CONTEXT"
+
           BASE_COMMIT_SHA=""
           COMMIT_SHA=${{ github.event.pull_request.head.sha }}
           CHANGED_FILES=$(git diff --name-only $BASE_COMMIT_SHA $COMMIT_SHA)
