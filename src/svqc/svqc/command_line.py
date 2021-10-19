@@ -22,6 +22,8 @@ def main():
     if args.verbose:
         for test in tests:
             sys.stderr.write(test.pretty_string())
+            
+    # test
 
 
 if __name__ == "__main__":
