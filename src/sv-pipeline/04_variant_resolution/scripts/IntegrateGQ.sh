@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #
-# TEST
+# TEST 1
 #
 # IntegrateGQ.sh
 #
