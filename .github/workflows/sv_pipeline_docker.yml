@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - VJalili-patch-1
+      - docker_build_action
     paths:
       - 'src/**'
       - 'dockerfiles/**'
@@ -14,7 +14,7 @@ on:
   pull_request:
     branches:
       - master
-      - VJalili-patch-1
+      - docker_build_action
     paths:
       - 'src/**'
       - 'dockerfiles/**'
