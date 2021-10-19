@@ -123,8 +123,3 @@ be generalizable to all use cases.
 If you would like to implement your own preprocessing before beginning
 integration and filtering, the pipeline can be bootstrapped to begin with the
 integration module by providing the following input files:
-
-
-
-test
-test
