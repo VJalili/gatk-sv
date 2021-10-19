@@ -49,7 +49,7 @@ jobs:
         run: |
           # The commit SHA of the base branch (ideally broadinstitute/gatk-sv:master)
           # this PR tagets.
-          BASE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.pull_request.base.sha')
+          BASE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
 
           # The commit SHA of the commit that triggered the action.
           COMMIT_SHA=${{ github.event.pull_request.head.sha }}
