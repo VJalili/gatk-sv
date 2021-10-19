@@ -47,8 +47,6 @@ jobs:
 
       - name: Determine Target Images
         run: |
-
-          # DEBUG
           echo "$GITHUB_CONTEXT"
 
           BASE_COMMIT_SHA=""
