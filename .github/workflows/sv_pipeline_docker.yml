@@ -54,6 +54,9 @@ jobs:
           # The commit SHA of the commit that triggered the action.
           COMMIT_SHA=${{ github.event.pull_request.head.sha }}
 
+          echo "$BASE_COMMIT_SHA"
+          echo "$COMMIT_SHA"
+
           # A list of all the files changed between the current commit & base.
           CHANGED_FILES=$(git diff --name-only $BASE_COMMIT_SHA $COMMIT_SHA)
 
