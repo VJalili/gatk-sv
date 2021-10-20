@@ -102,6 +102,7 @@ jobs:
 
           for i in "${CHANGED_FILES[@]}"
           do
+            echo "::debug::---------- in loop"
             if [[ $i == ".github/workflows/sv_pipeline_docker.yml" ]]; then
               # A change to this file may impact how images are built,
               # hence, if this file is changed, all the images are rebuilt.
