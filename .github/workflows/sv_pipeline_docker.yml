@@ -54,6 +54,32 @@ jobs:
 
       - name: Determine Target Images
         id: target_images
+        # This step determines the target images to be rebuilt based
+        # on the files changed in the commit that triggers this action
+        # w.r.t to the base commit the PR targets. For instance, if the
+        # commit changes the `dockerfiles/sv-base/Dockerfile`, then the
+        # `sv-base` docker image (and all its dependencies) are rebuilt.
+        #
+        # This step gets the HEAD (current latest pushed commit) and BASE
+        # (the commit the triggering PR targets) commit SHAs from the
+        # $GITHUB_CONTEXT environment variable. Then uses `git diff` to
+        # determine the files changed in the HEAD w.r.t. BASE. Based on the
+        # changed files, it determines a list of docker images to be rebuilt.
+        # Finally, it stores the determined docker images in $TARGETS
+        # variable that can be accessed in other steps.
+        #
+        # Note that the target images are determined based on the files
+        # changed between two commits: base and head. For instance, if
+        # your feature branch logs reads as A -> B -> C, A is this the
+        # _base_ (a commit on the upstream branch, e.g., gatk-sv:master)
+        # and C is the _head_. When A->B is pushed, and if B changes
+        # `src/svtk/*`, the push will trigger rebuilding the `sv-pipeline`
+        # image. When A->B->C is pushed, and if C changes `delly/Dockerfile`,
+        # the push will only trigger rebuilding the `delly` image. When
+        # the feature branch is merged onto A (i.e., A->B->C->D where D
+        # is the merge commit), the merge commit contains changes to both
+        # `src/svtk/*` and `dockerfiles/delly/Dockerfile`, hence it triggers
+        # rebuilding both `sv-pipeline` and `delly` docker images.
         run: |
           # The commit SHA of the base branch which this PR targets;
           # ideally broadinstitute/gatk-sv:master.
