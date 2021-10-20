@@ -147,6 +147,8 @@ jobs:
           for f in "${CHANGED_FILES[@]}"; do
             echo "::debug::    $f"
           done
+
+          # Set the output of this step so it can be accessed in other steps.
           echo "::set-output name=TARGETS::$TARGETS"
 
       - name: Run build_docker.py [Pull Request]
