@@ -39,7 +39,7 @@ jobs:
           # however, since a diff between the current commit and
           # the base commit is required to determined which docker
           # images to rebuild, we use the following to check out
-          # the complete git history.
+          # the complete git history. ...
           fetch-depth: 0
 
       - name: Setup Python
