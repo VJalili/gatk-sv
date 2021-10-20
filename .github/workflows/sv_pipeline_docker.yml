@@ -144,7 +144,9 @@ jobs:
           echo "::debug::HEAD_SHA: $HEAD_SHA"
           echo "::debug::Docker images to rebuild: $TARGETS"
           echo "::debug::Changed files:"
-          for f in "${CHANGED_FILES[@]}"; do echo "::debug::    $f"; done
+          for f in "${CHANGED_FILES[@]}"; do
+            echo "::debug::    $f"
+          done
           echo "::set-output name=TARGETS::$TARGETS"
 
       - name: Run build_docker.py [Pull Request]
