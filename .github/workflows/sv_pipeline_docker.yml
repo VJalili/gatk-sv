@@ -79,7 +79,7 @@ jobs:
         # the feature branch is merged onto A (i.e., A->B->C->D where D
         # is the merge commit), the merge commit contains changes to both
         # `src/svtk/*` and `dockerfiles/delly/Dockerfile`, hence it triggers
-        # rebuilding both `sv-pipeline` and `delly` docker images.
+        # rebuilding both `sv-pipeline` and `delly` docker images. ...
         run: |
           # The commit SHA of the base branch which this PR targets;
           # ideally broadinstitute/gatk-sv:master.
