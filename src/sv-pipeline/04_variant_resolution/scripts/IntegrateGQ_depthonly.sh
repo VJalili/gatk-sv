@@ -2,7 +2,7 @@
 #
 # IntegrateGQ_depthonly.sh
 # test
-# 321311113299999111111
+# 321311111299111111
 # 
 #
 # Copyright (C) 2018 Harrison Brand <hbrand1@mgh.harvard.edu>
