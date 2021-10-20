@@ -105,7 +105,9 @@ jobs:
             if [[ $i == ".github/workflows/sv_pipeline_docker.yml" ]]; then
               # A change to this file may impact how images are built,
               # hence, if this file is changed, all the images are rebuilt.
+              echo "---------- here"
               try_add_target "all"
+              echo "---------- after"
               break
             elif [[ $i == *"src/svtk"* ||
                   $i == *"src/sv-pipeline"* ||
@@ -147,6 +149,8 @@ jobs:
           for f in "${CHANGED_FILES[@]}"; do
             echo "::debug::    $f"
           done
+
+          # Set the output of this step so it can be accessed in other steps.
           echo "::set-output name=TARGETS::$TARGETS"
 
       - name: Run build_docker.py [Pull Request]
