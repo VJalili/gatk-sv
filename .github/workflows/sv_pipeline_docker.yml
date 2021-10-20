@@ -91,44 +91,47 @@ jobs:
           # A list of all the files changed between the current commit & base.
           CHANGED_FILES=$(git diff --name-only $BASE_COMMIT_SHA $COMMIT_SHA)
 
+          # Add a given target image name to the TARGETS
+          # array if it is not already in the array.
           TARGETS=()
           try_add_target() {
             if [[ ! " ${TARGETS[*]} " =~ $1 ]]; then
               TARGETS+=($1)
             fi
           }
+
           for i in "${CHANGED_FILES[@]}"
           do
             if [[ $i == *".github/workflows/sv_pipeline_docker.yml" ]]; then
               # A change to this file may impact how images are built,
-              # hence all the images are rebuilt.
+              # hence, if this file is changed, all the images are rebuilt.
               try_add_target "all"
-              # break
-            fi
-            if [[ $i == *"src/svtk"* ||
+              break
+            elif [[ $i == *"src/svtk"* ||
                   $i == *"src/sv-pipeline"* ||
                   $i == *"src/svtest"* ||
                   $i == *"src/svqc"* ]]; then
               try_add_target "sv-pipeline"
               try_add_target "sv-pipeline-base"
               try_add_target "sv-pipeline-children-r"
-            fi
-            if [[ $i == *"src/RdTest"* ]]; then
+            elif [[ $i == *"src/RdTest"* ]]; then
               try_add_target "sv-pipeline-rdtest"
-            fi
-            if [[ $i == *"src/WGD"* ]]; then
+            elif [[ $i == *"src/WGD"* ]]; then
               try_add_target "sv-pipeline-qc"
               try_add_target "cnmops"
-            fi
-            if [[ $i == *"scripts/docker/resources.Dockerfile"* ]]; then
+            elif [[ $i == *"scripts/docker/resources.Dockerfile"* ]]; then
               try_add_target "gatksv-pipeline-v1-resources"
             fi
-            #
+
+            # Rebuild the docker image of the Dockerfiles specified in
+            # the `D` array. Use regular expression to extract the target
+            # image from the file path. For instance, if
+            # i = dockerfiles/delly/Dockerfile, then M="delly".
             if [[ $i =~ (dockerfiles/)([^,]*)(/Dockerfile) ]]; then
-              m="${BASH_REMATCH[2]}"
-              d=("delly" "manta" "wham" "sv-base-mini" "sv-base" "samtools-cloud")
-              if [[ " ${d[*]} " =~ $m ]]; then
-                try_add_target $m
+              M="${BASH_REMATCH[2]}"
+              D=("delly" "manta" "wham" "sv-base-mini" "sv-base" "samtools-cloud")
+              if [[ " ${D[*]} " =~ $M ]]; then
+                try_add_target $M
               fi
             fi
           done
