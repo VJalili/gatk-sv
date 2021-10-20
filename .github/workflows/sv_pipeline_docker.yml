@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - test
     paths:
       - 'src/**'
       - 'dockerfiles/**'
@@ -13,6 +14,7 @@ on:
   pull_request:
     branches:
       - master
+      - test
     paths:
       - 'src/**'
       - 'dockerfiles/**'
