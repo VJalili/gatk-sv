@@ -81,7 +81,7 @@ jobs:
         # `src/svtk/*` and `dockerfiles/delly/Dockerfile`, hence it triggers
         # rebuilding both `sv-pipeline` and `delly` docker images.
         run: |
-          # The commit SHA of the base branch which this PR targets;
+        # The commit SHA of the base branch which this PR targets;
           # ideally broadinstitute/gatk-sv:master.
           BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
 
@@ -102,14 +102,10 @@ jobs:
 
           for i in "${CHANGED_FILES[@]}"
           do
-            echo "::debug::---------- in loop"
-            echo "::debug::---------- $i"
             if [[ $i == *".github/workflows/sv_pipeline_docker.yml"* ]]; then
               # A change to this file may impact how images are built,
               # hence, if this file is changed, all the images are rebuilt.
-              echo "::debug::---------- here"
               try_add_target "all"
-              echo "::debug::---------- after"
               break
             elif [[ $i == *"src/svtk"* ||
                   $i == *"src/sv-pipeline"* ||
