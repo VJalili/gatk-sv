@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright © 2016 Matthew Stone <mstone5@mgh.harvard.edu>
-# Distributed under terms of the MIT license.
+# Distributed under terms of the MIT license.  ...
 
 """
 
