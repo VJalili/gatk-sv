@@ -81,7 +81,7 @@ jobs:
         # `src/svtk/*` and `dockerfiles/delly/Dockerfile`, hence it triggers
         # rebuilding both `sv-pipeline` and `delly` docker images.
         run: |
-        # The commit SHA of the base branch which this PR targets;
+          # The commit SHA of the base branch which this PR targets;
           # ideally broadinstitute/gatk-sv:master.
           BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
 
