@@ -210,6 +210,4 @@ jobs:
       - name: Run build_docker.py
         run: |          
           cd ./scripts/docker/
-          python build_docker.py \
-            --targets ${{ steps.target_images.outputs.TARGETS }} \
-            --image-tag ${{ steps.image_tag.outputs.IMAGE_TAG }}
+          python build_docker.py --targets ${{ steps.target_images.outputs.TARGETS }} --image-tag ${{ steps.image_tag.outputs.IMAGE_TAG }}
