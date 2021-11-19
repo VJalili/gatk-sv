@@ -5,7 +5,7 @@ on:
     branches:
       - master
       - fix_docker_build_action
-      - test
+      - test-2
     paths:
       - 'src/**'
       - 'dockerfiles/**'
@@ -16,7 +16,7 @@ on:
     branches:
       - master
       - fix_docker_build_action
-      - test
+      - test-2
     paths:
       - 'src/**'
       - 'dockerfiles/**'
@@ -78,95 +78,3 @@ jobs:
           # The commit SHA of the commit that triggered the action.
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
           echo "::debug::HEAD_SHA: $HEAD_SHA"
-
-          # A list of all the files changed in HEAD commit w.r.t BASE commit.
-          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)
-
-          # Add a given target image name to the TARGETS
-          # array if it is not already in the array.
-          TARGETS=()
-          try_add_target() {
-            if [[ ! " ${TARGETS[*]} " =~ $1 ]]; then
-              TARGETS+=($1)
-            fi
-          }
-
-          for i in "${CHANGED_FILES[@]}"
-          do
-            if [[ $i == *".github/workflows/sv_pipeline_docker.yml"* ]]; then
-              # A change to this file may impact how images are built,
-              # hence, if this file is changed, all the images are rebuilt.
-              TARGETS=("all")
-              break
-            elif [[ $i == *"src/svtk"* ||
-                  $i == *"src/sv-pipeline"* ||
-                  $i == *"src/svtest"* ||
-                  $i == *"src/svqc"* ]]; then
-              try_add_target "sv-pipeline"
-              try_add_target "sv-pipeline-base"
-              try_add_target "sv-pipeline-children-r"
-            elif [[ $i == *"src/RdTest"* ]]; then
-              try_add_target "sv-pipeline-rdtest"
-            elif [[ $i == *"src/WGD"* ]]; then
-              try_add_target "sv-pipeline-qc"
-              try_add_target "cnmops"
-            elif [[ $i == *"scripts/docker/resources.Dockerfile"* ]]; then
-              try_add_target "gatksv-pipeline-v1-resources"
-            fi
-
-            # Rebuild the docker image of the Dockerfiles specified in
-            # the `D` array. Use regular expression to extract the target
-            # image from the file path. For instance, if
-            # i = dockerfiles/delly/Dockerfile, then M="delly".
-            if [[ $i =~ (dockerfiles/)([^,]*)(/Dockerfile) ]]; then
-              M="${BASH_REMATCH[2]}"
-              D=("delly" "manta" "wham" "sv-base-mini" "sv-base" "samtools-cloud")
-              if [[ " ${D[*]} " =~ $M ]]; then
-                try_add_target $M
-              fi
-            fi
-          done
-
-          # Join the determined targets in a space-delimited string.
-          TARGETS=$(IFS=' '; echo "${TARGETS[*]}")
-
-          # Print some debugging information.
-          echo "::debug::BASE_SHA: $BASE_SHA"
-          echo "::debug::HEAD_SHA: $HEAD_SHA"
-          echo "::debug::Docker images to rebuild: $TARGETS"
-          echo "::debug::Changed files:"
-          for f in "${CHANGED_FILES[@]}"; do
-            echo "::debug::    $f"
-          done
-
-          # Set the output of this step so it can be accessed in other steps.
-          echo "::set-output name=TARGETS::$TARGETS"
-
-      - name: Run build_docker.py [Pull Request]
-        if: github.event_name == 'pull_request'
-        run: |
-          PR_NUM=${{ github.event.number }}
-          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
-          IMAGE_TAG=${PR_NUM}-${COMMIT_SHA::8}
-          echo "::debug::Image tag: $IMAGE_TAG"
-          cd ./scripts/docker/
-          python build_docker.py --targets ${{ steps.target_images.outputs.TARGETS }} --image-tag $IMAGE_TAG
-
-      - name: Run build_docker.py [Push]
-        if: github.event_name == 'push'
-        run: |
-          # Get push/merge commit SHA and its time stamp
-          # from Github's context json.
-          MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
-          TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
-
-          # Extract date, without dash, from time stamp; e.g.,
-          # from: 2021-07-09T20:43:27-07:00
-          # to:   20210709
-          DATE="$(cut -d'T' -f1 <<<${TIME_STAMP//-})"
-
-          IMAGE_TAG=$DATE-${MERGE_COMMIT_SHA::8}
-          echo "::debug::Image tag: $IMAGE_TAG"
-
-          cd ./scripts/docker/.    
-          python build_docker.py --targets ${{ steps.target_images.outputs.TARGETS }} --image-tag $IMAGE_TAG
