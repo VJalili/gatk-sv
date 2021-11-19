@@ -87,7 +87,7 @@ jobs:
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
           else
             BASE_SHA=${{ github.event.before }}
-            HEAD_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
+            HEAD_SHA=$(echo "$GITHUB_CONTEXT" | jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
           fi
 
           echo "::debug::BASE_SHA: $BASE_SHA"
