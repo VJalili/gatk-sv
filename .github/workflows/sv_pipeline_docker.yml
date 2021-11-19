@@ -53,6 +53,28 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install termcolor
+          
+      - name: Determine Commit SHAs
+        id: commit_sha
+        run: |
+          EVENT_NAME=$(echo "$GITHUB_CONTEXT"| jq -r '.event_name')
+          echo "::debug::EVENT_NAME: $EVENT_NAME"
+          
+          if [[ $EVENT_NAME == "pull_request" ]]; then
+            # The commit SHA of the base branch which this PR targets;
+            # ideally broadinstitute/gatk-sv:master.
+            BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
+            
+            # The commit SHA of the commit that triggered the action.
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          else
+            BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.before' | sed 's/\"//g')
+            HEAD_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
+          fi
+          
+          echo "::debug::BASE_SHA: $BASE_SHA"
+          echo "::debug::HEAD_SHA: $HEAD_SHA"
+        
 
       - name: Determine Target Images
         id: target_images
@@ -70,21 +92,7 @@ jobs:
         # Finally, it stores the determined docker images in $TARGETS
         # variable that can be accessed in other steps.
         run: |
-          # The commit SHA of the base branch which this PR targets;
-          # ideally broadinstitute/gatk-sv:master.
-          BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
-          echo "::debug::BASE_SHA: $BASE_SHA"
-
-          # The commit SHA of the commit that triggered the action.
-          HEAD_SHA=${{ github.event.pull_request.head.sha }}
-          echo "::debug::HEAD_SHA: $HEAD_SHA"
-
           
-          SECOND_LAST_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.before' | sed 's/\"//g')
-          echo "::debug::SECOND_LAST_COMMIT_SHA: $SECOND_LAST_COMMIT_SHA"
+          echo "hello"
           
-          MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
-          echo "::debug::MERGE_COMMIT_SHA: $MERGE_COMMIT_SHA"
           
-          TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 | sed 's/\"//g')
-          echo "::debug::TIME_STAMP: $TIME_STAMP"
