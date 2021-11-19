@@ -168,5 +168,5 @@ jobs:
           IMAGE_TAG=$DATE-${MERGE_COMMIT_SHA::8}
           echo "::debug::Image tag: $IMAGE_TAG"
 
-          cd ./scripts/docker/
+          cd ./scripts/docker/.    
           python build_docker.py --targets ${{ steps.target_images.outputs.TARGETS }} --image-tag $IMAGE_TAG
