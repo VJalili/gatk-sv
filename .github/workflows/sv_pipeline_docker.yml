@@ -89,10 +89,10 @@ jobs:
           echo "::debug::EVENT_NAME: $EVENT_NAME"
           
           if [[ $EVENT_NAME == "pull_request" ]]; then
-            BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
           else
-            BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.before' | sed 's/\"//g')
+            BASE_SHA=${{ github.event.before }}
             HEAD_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
           fi
           
