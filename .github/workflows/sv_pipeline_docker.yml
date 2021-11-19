@@ -71,7 +71,7 @@ jobs:
         # variable that can be accessed in other steps.
         run: |
           
-          EVENT_NAME=$(echo "$GITHUB_CONTEXT"| jq -r 'event_name')
+          EVENT_NAME=$(echo "$GITHUB_CONTEXT"| jq -r '.event_name')
           echo "::debug::EVENT_NAME: $EVENT_NAME"
           if [[ $EVENT_NAME == "pull_request" ]]; then
             echo "YES"
