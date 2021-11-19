@@ -56,16 +56,40 @@ jobs:
           
       - name: Determine Commit SHAs
         id: commit_sha
+        # This action determines the SHA of two commits:
+        # - BASE (BASE_SHA): The commit SHA of the base branch
+        #     (e.g., broadinstitute/gatk-sv:master) which the
+        #     feature branch targets.
+        # - HEAD (HEAD_SHA): The commit SHA of the latest commit
+        #     on the feature branch.
+        #
+        # In the following example, BASE_SHA=B and HEAD_SHA=Z 
+        #
+        #     	    X---Y---Z     feature
+        #          /         \
+        #     A---B---C---D---E   master
+        #
+        # 'E' is the merge commit ('Merge pull request #0').
+        #
+        # This action can be invoked as a result of 
+        # (a) pushing commits X, Y, or Z, or (b) pushing 
+        # merge commit E (i.e., merging the PR). 
+        # Depending on (a) and (b) the commit SHAs are 
+        # determined differently. In case of (a), the commit 
+        # SHAs are extracted from the 'event.pull_request' 
+        # key in the github's context JSON. In case of (b), 
+        # the commit SHAs are extracted from the list of 
+        # commits recorded under the 'event' key.
+        #
+        # Note: Github's context JSON is printed in the
+        # action's debug page.
+        #
         run: |
           EVENT_NAME=$(echo "$GITHUB_CONTEXT"| jq -r '.event_name')
           echo "::debug::EVENT_NAME: $EVENT_NAME"
           
           if [[ $EVENT_NAME == "pull_request" ]]; then
-            # The commit SHA of the base branch which this PR targets;
-            # ideally broadinstitute/gatk-sv:master.
             BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
-            
-            # The commit SHA of the commit that triggered the action.
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
           else
             BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.before' | sed 's/\"//g')
@@ -74,6 +98,10 @@ jobs:
           
           echo "::debug::BASE_SHA: $BASE_SHA"
           echo "::debug::HEAD_SHA: $HEAD_SHA"
+          
+          # Avail the determined commit SHAs to other steps.
+          echo "::set-output name=BASE_SHA::$BASE_SHA"
+          echo "::set-output name=HEAD_SHA::$HEAD_SHA"
         
 
       - name: Determine Target Images
