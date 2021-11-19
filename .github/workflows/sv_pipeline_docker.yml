@@ -91,7 +91,6 @@ jobs:
           if [[ $EVENT_NAME == "pull_request" ]]; then
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
-            HEAD_TIMESTAMP=
           else
             BASE_SHA=${{ github.event.before }}
             HEAD_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
@@ -108,21 +107,20 @@ jobs:
         id: image_tag
         # This step composes a tag to be used for all the 
         # images created by the build_docker.py script.
-        # The image follows the following template: 
+        # The tag follows the following template: 
         #
-        #   DATE-BASE_SHA
+        #   DATE-HEAD_SHA_8
         #
         # where 'DATE' is YYYYMMDD extracted from the 
         # time stamp of the last commit on the feature 
-        # branch (HEAD), and 'BASE_SHA' the commit SHA
-        # of the last commit.
+        # branch (HEAD), and 'HEAD_SHA_8' is the first
+        # eight letters of its commit SHA.
         run: |
-          COMMIT_SHA=${{ steps.commit_sha.outputs.BASE_SHA }}
+          COMMIT_SHA=${{ steps.commit_sha.outputs.HEAD_SHA }}
           
-          # Extract date, without dash, from the time 
-          # stamp of the last commit; e.g.,
-          # from: 2021-07-09T20:43:27-07:00
-          # to:   20210709
+          # Extract the time stamp of COMMIT_SHA in YYYYMMDD format.
+          # See git-show documentation available at:
+          # http://schacon.github.io/git/git-show
           DATE=$(git show -s --format=%ad --date=format:'%Y%m%d' $COMMIT_SHA)
           
           IMAGE_TAG=$DATE-${COMMIT_SHA::8}
