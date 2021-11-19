@@ -89,10 +89,10 @@ jobs:
           echo "::debug::EVENT_NAME: $EVENT_NAME"
           
           if [[ $EVENT_NAME == "pull_request" ]]; then
-            BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq -r '.event.pull_request.base.sha')
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
           else
-            BASE_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.before' | sed 's/\"//g')
+            BASE_SHA=${{ github.event.before }}
             HEAD_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 | sed 's/\"//g')
           fi
           
@@ -102,25 +102,25 @@ jobs:
           # Avail the determined commit SHAs to other steps.
           echo "::set-output name=BASE_SHA::$BASE_SHA"
           echo "::set-output name=HEAD_SHA::$HEAD_SHA"
-        
 
       - name: Determine Target Images
         id: target_images
         # This step determines the target images to be rebuilt based
-        # on the files changed between the HEAD and BASE commits, where
-        # HEAD is the commit that its push triggered running this action and
-        # BASE is the commit the PR is targeting. For instance, if the
+        # on the files changed between the HEAD and BASE commits 
+        # (see the 'Determine Commit SHAs' step). For instance, if the
         # commit changes the `dockerfiles/sv-base/Dockerfile`, then the
-        # `sv-base` docker image (and all its dependencies) are rebuilt.
+        # `sv-base` docker image and all its dependencies are rebuilt.
         #
         # This step first gets the HEAD and BASE commit SHAs from the
-        # $GITHUB_CONTEXT environment variable. Then uses `git diff` to
-        # determine the files changed between the commits. Based on the
-        # changed files, it determines a list of docker images to be rebuilt.
-        # Finally, it stores the determined docker images in $TARGETS
-        # variable that can be accessed in other steps.
+        # 'commit_sha' step. Then uses `git diff` to determine the files 
+        # changed between the commits. Based on the changed files, it 
+        # determines a list of docker images to be rebuilt. Finally, 
+        # it stores the determined docker images in $TARGETS variable 
+        # that can be accessed in other steps.
         run: |
+          BASE_SHA=${{ steps.commit_sha.outputs.BASE_SHA }}
+          HEAD_SHA=${{ steps.commit_sha.outputs.HEAD_SHA }}
           
-          echo "hello"
-          
+          # A list of all the files changed in HEAD commit w.r.t BASE commit.
+          CHANGED_FILES=$(git diff --name-only $BASE_SHA $HEAD_SHA)          
           
