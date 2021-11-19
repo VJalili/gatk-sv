@@ -78,3 +78,9 @@ jobs:
           # The commit SHA of the commit that triggered the action.
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
           echo "::debug::HEAD_SHA: $HEAD_SHA"
+          
+          MERGE_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].id' | tail -2 | head -1 |sed 's/\"//g')
+          echo "::debug::MERGE_COMMIT_SHA: $MERGE_COMMIT_SHA"
+          
+          TIME_STAMP=$(echo "$GITHUB_CONTEXT"| jq '.event.commits[].timestamp' | tail -2 | head -1 |sed 's/\"//g')
+          echo "::debug::TIME_STAMP: $TIME_STAMP"
