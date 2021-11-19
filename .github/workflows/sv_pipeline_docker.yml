@@ -199,12 +199,10 @@ jobs:
           TARGETS=$(IFS=' '; echo "${TARGETS[*]}")
           
           # Print some debugging information.
-          echo "::debug::BASE_SHA: $BASE_SHA"
-          echo "::debug::HEAD_SHA: $HEAD_SHA"
           echo "::debug::Docker images to rebuild: $TARGETS"
           echo "::debug::Changed files:"
           for f in "${CHANGED_FILES[@]}"; do
-            echo "::debug::    $f"
+            echo "::debug:: - $f"
           done
           
           # Set the output of this step so it can be accessed in other steps.
