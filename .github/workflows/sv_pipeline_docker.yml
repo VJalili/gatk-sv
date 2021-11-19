@@ -78,6 +78,7 @@ jobs:
           # The commit SHA of the commit that triggered the action.
           HEAD_SHA=${{ github.event.pull_request.head.sha }}
           echo "::debug::HEAD_SHA: $HEAD_SHA"
+
           
           SECOND_LAST_COMMIT_SHA=$(echo "$GITHUB_CONTEXT"| jq '.event.before' | sed 's/\"//g')
           echo "::debug::SECOND_LAST_COMMIT_SHA: $SECOND_LAST_COMMIT_SHA"
