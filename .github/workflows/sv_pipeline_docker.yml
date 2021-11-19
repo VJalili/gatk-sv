@@ -123,8 +123,7 @@ jobs:
           # stamp of the last commit; e.g.,
           # from: 2021-07-09T20:43:27-07:00
           # to:   20210709
-          TIME_STAMP=$(git show -s --format=%ci $COMMIT_SHA)
-          DATE="$(cut -d'T' -f1 <<<${TIME_STAMP//-})"
+          DATE=$(git show -s --format=%ad --date=format:'%Y%m%d' $COMMIT_SHA)
           
           IMAGE_TAG=$DATE-${COMMIT_SHA::8}
           echo "::debug::Image tag: $IMAGE_TAG"
