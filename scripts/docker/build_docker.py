@@ -141,8 +141,16 @@ class ProjectBuilder:
             print(colored('#################################################', 'magenta'))
 
     def push(self):
+        pushed_images = []
         for image in self.built_images:
-            ImageBuilder(image, self).push()
+            builder = ImageBuilder(image, self)
+            if builder.push():
+                pushed_images.append([builder.name, builder.tag])
+        return pushed_images
+
+    def export_pushed_images_list(self, pushed_images):
+        print(pushed_images)
+
 
     def build_and_push(self):
         print("Project args:")
@@ -154,7 +162,7 @@ class ProjectBuilder:
             # start docker daemon, if one hasn't been started yet
             os.system("open --background -a Docker && while ! docker system info > /dev/null 2>&1; do sleep 1; done")
             self.build()
-            self.push()
+            self.export_pushed_images_list(self.push())
             print(colored('BUILD PROCESS SUCCESS!', 'green'))
         finally:
             if not self.project_arguments.skip_cleanup:
@@ -237,8 +245,10 @@ class ImageBuilder:  # class for building and pushing a single image
         self._push(self.tag)
         if self.project_builder.project_arguments.update_latest:
             self._push("latest")
+        return True
 
     def _push(self, remote_tag):
+        images = {}
         for rep in self.remote_docker_repos:
             # do not push images with very restrictive licenses
             if (self.name in ProjectBuilder.non_public_images) and (not rep.startswith('us.gcr.io')):
@@ -246,6 +256,9 @@ class ImageBuilder:  # class for building and pushing a single image
                 continue
 
             remote_image = f"{rep}/{self.name}:{remote_tag}"
+            if self.name not in images:
+                images[self.name] = []
+            images[self.name].append(remote_image)
             docker_tag_command = f"docker tag {self.local_image} {remote_image}"
             docker_push_command = f"docker push {remote_image}"
             print(docker_tag_command)
@@ -254,6 +267,7 @@ class ImageBuilder:  # class for building and pushing a single image
             print(docker_push_command)
             if os.system(docker_push_command) != 0:
                 raise RuntimeError(f"Failed to push image {remote_image}")
+        return images
 
 
 def get_command_output(command):
@@ -325,6 +339,9 @@ def __parse_arguments(args_list):
                         help='Do not rebuild docker images if the exact image and tag already exist.')
     parser.add_argument('--skip-cleanup', action='store_true',
                         help='skip cleanup after successful and unsuccessful build attempts.')
+    parser.add_argument('--export-pushed-images-list',
+                        type=str, help='Exports the list of images pushed '
+                                       'to GCR to a given file.')
 
     # parse and consistency check
     if len(args_list) <= 1:  # no arguments, print help and exit with success
