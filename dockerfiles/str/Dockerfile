@@ -2,7 +2,7 @@
 # list of tools and their dependencies:
 # - ExpansionHunter (custom-built);
 # - htslib, bcftools, and samtools;
-# - python3.8, pip
+# - python3.6, pip
 
 FROM ubuntu:18.04
 
@@ -43,10 +43,10 @@ RUN pip install --upgrade setuptools
 RUN pip install -q -U Cython==0.29.30 numpy==1.19.5
 RUN pip install -q -U pandas==1.1.5
 
-RUN mkdir eh && \
-    wget -O eh/ExpansionHunter https://github.com/bw2/ExpansionHunter/raw/master/bin/linux/ExpansionHunter && \
-    chmod 0755 /eh/ExpansionHunter
-ENV PATH="/eh/:$PATH"
+RUN cd /opt/ && mkdir eh && cd eh/ && \
+    wget -O ExpansionHunter https://github.com/bw2/ExpansionHunter/raw/master/bin/linux/ExpansionHunter && \
+    chmod 0755 ExpansionHunter
+ENV PATH="/opt/eh/:$PATH"
 
 # Install htslib, bcftools, & samtools.
 RUN wget -O htslib.tar.bz2 https://github.com/samtools/htslib/releases/download/$HTSLIB_VER/htslib-$HTSLIB_VER.tar.bz2 && \
@@ -58,9 +58,9 @@ RUN wget -O htslib.tar.bz2 https://github.com/samtools/htslib/releases/download/
     wget -O samtools.tar.bz2 https://github.com/samtools/samtools/releases/download/$SAMTOOLS_VER/samtools-$SAMTOOLS_VER.tar.bz2 && \
     mkdir samtools && tar -xvjf samtools.tar.bz2 -C samtools --strip-components=1 && rm samtools.tar.bz2 && \
     cd samtools && ./configure && make && make install && cd ..
-ENV PATH="/bcftools:$PATH"
-ENV PATH="/htslib:$PATH"
-ENV PATH="/samtools:$PATH"
+ENV PATH="/opt/bcftools:$PATH"
+ENV PATH="/opt/htslib:$PATH"
+ENV PATH="/opt/samtools:$PATH"
 
 # Copy the scripts needed in the ExpansionHunter WDL.
 COPY /src/str /opt/str
