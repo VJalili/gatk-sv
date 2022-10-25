@@ -3,6 +3,7 @@ version 1.0
 import "CleanVcfChromosome.wdl" as CleanVcfChromosome
 import "TasksMakeCohortVcf.wdl" as MiniTasks
 import "HailMerge.wdl" as HailMerge
+import "MakeCohortVcfMetrics.wdl" as metrics
 
 workflow CleanVcf {
   input {
@@ -30,6 +31,19 @@ workflow CleanVcf {
     Boolean use_hail = false
     String? gcs_project
 
+    # Module metrics parameters
+    # Run module metrics workflow at the end - on by default
+    Boolean? run_module_metrics
+    String? sv_pipeline_base_docker  # required if run_module_metrics = true
+    File? primary_contigs_list  # required if run_module_metrics = true
+    File? baseline_cluster_vcf  # baseline files are optional for metrics workflow
+    File? baseline_complex_resolve_vcf
+    File? baseline_complex_genotype_vcf
+    File? baseline_cleaned_vcf
+    File? combine_batches_merged_vcf  # intermediate merged VCFs are optional for metrics workflow
+    File? resolve_complex_merged_vcf
+    File? genotype_complex_merged_vcf
+
     String linux_docker
     String sv_base_mini_docker
     String sv_pipeline_docker
@@ -41,6 +55,7 @@ workflow CleanVcf {
     RuntimeAttr? runtime_override_hail_merge_clean_final
     RuntimeAttr? runtime_override_fix_header_clean_final
     RuntimeAttr? runtime_override_concat_cleaned_vcfs
+    RuntimeAttr? runtime_override_fix_bad_ends
 
     # overrides for CleanVcfContig
     RuntimeAttr? runtime_override_clean_vcf_1a
@@ -143,7 +158,8 @@ workflow CleanVcf {
         runtime_attr_override_scatter_1b=runtime_attr_override_scatter_1b,
         runtime_attr_override_filter_vcf_1b=runtime_attr_override_filter_vcf_1b,
         runtime_override_concat_vcfs_1b=runtime_override_concat_vcfs_1b,
-        runtime_override_cat_multi_cnvs_1b=runtime_override_cat_multi_cnvs_1b
+        runtime_override_cat_multi_cnvs_1b=runtime_override_cat_multi_cnvs_1b,
+        runtime_override_fix_bad_ends=runtime_override_fix_bad_ends
     }
   }
 
@@ -174,8 +190,31 @@ workflow CleanVcf {
     }
   }
 
+  File cleaned_vcf_ = select_first([ConcatCleanedVcfs.concat_vcf, ConcatVcfsHail.merged_vcf])
+
+  Boolean run_module_metrics_ = if defined(run_module_metrics) then select_first([run_module_metrics]) else true
+  if (run_module_metrics_) {
+    call metrics.MakeCohortVcfMetrics {
+      input:
+        name = cohort_name,
+        cluster_vcf = combine_batches_merged_vcf,
+        complex_resolve_vcf = resolve_complex_merged_vcf,
+        complex_genotype_vcf = genotype_complex_merged_vcf,
+        cleaned_vcf = cleaned_vcf_,
+        baseline_cluster_vcf = baseline_cluster_vcf,
+        baseline_complex_resolve_vcf = baseline_complex_resolve_vcf,
+        baseline_complex_genotype_vcf = baseline_complex_genotype_vcf,
+        baseline_cleaned_vcf = baseline_cleaned_vcf,
+        contig_list = select_first([primary_contigs_list]),
+        linux_docker = linux_docker,
+        sv_pipeline_base_docker = select_first([sv_pipeline_base_docker]),
+        sv_base_mini_docker = sv_base_mini_docker
+    }
+  }
+
   output {
-    File cleaned_vcf = select_first([ConcatCleanedVcfs.concat_vcf, ConcatVcfsHail.merged_vcf])
+    File cleaned_vcf = cleaned_vcf_
     File cleaned_vcf_index = select_first([ConcatCleanedVcfs.concat_vcf_idx, ConcatVcfsHail.merged_vcf_index])
+    File? metrics_file_makecohortvcf = MakeCohortVcfMetrics.metrics_file
   }
 }

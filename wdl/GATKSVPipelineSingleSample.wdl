@@ -11,6 +11,7 @@ import "SRTest.wdl" as SRTest
 import "FilterBatchSamples.wdl" as filterbatch
 import "GenotypeBatch.wdl" as genotypebatch
 import "MakeCohortVcf.wdl" as makecohortvcf
+import "TasksMakeCohortVcf.wdl" as tasks_makecohortvcf
 import "AnnotateVcf.wdl" as annotate
 import "GermlineCNVCase.wdl" as gcnv
 import "SingleSampleFiltering.wdl" as SingleSampleFiltering
@@ -34,14 +35,12 @@ workflow GATKSVPipelineSingleSample {
 
     # Define raw callers to use
     # Overrides presence of case_*_vcf parameters below
-    Boolean use_delly = false
     Boolean use_manta = true
     Boolean use_melt = true
-    Boolean use_scramble = true
+    Boolean use_scramble = false
     Boolean use_wham = true
 
     # If GatherSampleEvidence outputs already prepared
-    File? case_delly_vcf
     File? case_manta_vcf
     File? case_melt_vcf
     File? case_scramble_vcf
@@ -49,10 +48,11 @@ workflow GATKSVPipelineSingleSample {
     File? case_counts_file
     File? case_pe_file
     File? case_sr_file
+    File? case_sd_file
 
     # Global files
     File ref_ped_file
-    Array[String] ref_samples
+    File ref_samples_list
     File genome_file
     File primary_contigs_list
     File primary_contigs_fai
@@ -82,7 +82,6 @@ workflow GATKSVPipelineSingleSample {
     String cloud_sdk_docker
 
     # Must be provided if corresponding use_* is true and case_*_vcf is not provided
-    String? delly_docker
     String? manta_docker
     String? melt_docker
     String? scramble_docker
@@ -111,6 +110,9 @@ workflow GATKSVPipelineSingleSample {
     File? manta_region_bed_index
     Float? manta_jobs_per_cpu
     Int? manta_mem_gb_per_job
+
+    # PESR inputs
+    File sd_locs_vcf
 
     # Melt inputs
     File? melt_standard_vcf_header # required if use_melt True
@@ -164,18 +166,18 @@ workflow GATKSVPipelineSingleSample {
     ############################################################
 
     # Parameters
-    File inclusion_bed
     Int min_svsize                  # Minimum SV length to include
 
     # gCNV inputs
     File contig_ploidy_model_tar
-    Array[File] gcnv_model_tars
+    File gcnv_model_tars_list  # list of files, one per line
 
     # bincov counts files (for cn.mops)
     File ref_panel_bincov_matrix
 
-    Array[File] ref_pesr_disc_files
-    Array[File] ref_pesr_split_files
+    File ref_pesr_disc_files_list  # list of files, one per line
+    File ref_pesr_split_files_list  # list of files, one per line
+    File ref_pesr_sd_files_list  # list of files, one per line
 
     File? gatk4_jar_override
     Float? gcnv_p_alt
@@ -228,17 +230,10 @@ workflow GATKSVPipelineSingleSample {
     RuntimeAttr? median_cov_runtime_attr        # Memory ignored, use median_cov_mem_gb_per_sample
     Float? median_cov_mem_gb_per_sample
 
-    RuntimeAttr? runtime_attr_shard_pe
-    RuntimeAttr? runtime_attr_merge_pe
-    RuntimeAttr? runtime_attr_shard_sr
-    RuntimeAttr? runtime_attr_merge_sr
-    RuntimeAttr? runtime_attr_set_sample
     RuntimeAttr? evidence_merging_bincov_runtime_attr # Disk space ignored, use evidence_merging_bincov_size_mb
 
-    RuntimeAttr? cnmops_sample10_runtime_attr   # Memory ignored if cnmops_mem_gb_override_sample10 given
-    RuntimeAttr? cnmops_sample3_runtime_attr    # Memory ignored if cnmops_mem_gb_override_sample3 given
-    Float? cnmops_mem_gb_override_sample10
-    Float? cnmops_mem_gb_override_sample3
+    RuntimeAttr? cnmops_sample10_runtime_attr
+    RuntimeAttr? cnmops_sample3_runtime_attr
 
     RuntimeAttr? add_sample_to_ped_runtime_attr
     RuntimeAttr? preprocess_calls_runtime_attr
@@ -261,34 +256,59 @@ workflow GATKSVPipelineSingleSample {
     # Depth merging parameters
     RuntimeAttr? runtime_attr_depth_merge_pre_clusterbatch
 
+    # VCF merging parameters
+    RuntimeAttr? runtime_attr_combine_manta_std
+    RuntimeAttr? runtime_attr_combine_wham_std
+    RuntimeAttr? runtime_attr_combine_scramble_std
+    RuntimeAttr? runtime_attr_combine_melt_std
+
     # Reference panel standardized caller VCFs
-    Array[File] ref_std_manta_vcfs
-    Array[File] ref_std_wham_vcfs
-    Array[File]? ref_std_melt_vcfs
-    Array[File]? ref_std_scramble_vcfs
+    File ref_std_manta_vcf_tar
+    File ref_std_wham_vcf_tar
+    File? ref_std_scramble_vcf_tar
+    File? ref_std_melt_vcf_tar
+
     File ref_panel_del_bed
     File ref_panel_dup_bed
 
-    Int pesr_svsize
-    Float pesr_frac
-    String pesr_flags
-    Int pesr_distance
-    File pesr_exclude_list
-    String depth_flags
-    Float depth_frac
-    File? Sanders_2015_tarball
-    File? Werling_2018_tarball
-    File? Collins_2017_tarball
+    Int? depth_records_per_bed_shard_cluster_batch
+    Float depth_exclude_overlap_fraction
+    Float depth_interval_overlap
+    String? depth_clustering_algorithm
+
+    Int? pesr_min_size
+    File pesr_exclude_intervals
+    Float pesr_interval_overlap
+    Int pesr_breakend_window
+    String? pesr_clustering_algorithm
+
+    File? baseline_depth_vcf_cluster_batch
+    File? baseline_manta_vcf_cluster_batch
+    File? baseline_wham_vcf_cluster_batch
+    File? baseline_scramble_vcf_cluster_batch
+    File? baseline_melt_vcf_cluster_batch
+
+    Float? java_mem_fraction_cluster_batch
+
+    RuntimeAttr? runtime_attr_ids_from_vcf_list_cluster_batch
+    RuntimeAttr? runtime_attr_create_ploidy_cluster_batch
+    RuntimeAttr? runtime_attr_prepare_pesr_vcfs_cluster_batch
+    RuntimeAttr? runtime_attr_svcluster_manta_cluster_batch
+    RuntimeAttr? runtime_attr_svcluster_melt_cluster_batch
+    RuntimeAttr? runtime_attr_svcluster_scramble_cluster_batch
+    RuntimeAttr? runtime_attr_svcluster_wham_cluster_batch
+    RuntimeAttr? runtime_override_concat_vcfs_pesr_cluster_batch
+    RuntimeAttr? runtime_attr_gatk_to_svtk_vcf_pesr_cluster_batch
+    RuntimeAttr? runtime_attr_scatter_bed_cluster_batch
+    RuntimeAttr? runtime_attr_cnv_bed_to_gatk_vcf_cluster_batch
+    RuntimeAttr? runtime_attr_exclude_intervals_depth_cluster_batch
+    RuntimeAttr? runtime_attr_svcluster_depth_cluster_batch
+    RuntimeAttr? runtime_attr_gatk_to_svtk_vcf_depth_cluster_batch
+    RuntimeAttr? runtime_override_concat_vcfs_depth_cluster_batch
+    RuntimeAttr? runtime_attr_exclude_intervals_pesr_cluster_batch
 
     # Run ClusterBatch metrics - default is off for single sample pipeline
     Boolean? run_clusterbatch_metrics = false
-
-    RuntimeAttr? runtime_attr_pesr_cluster
-    RuntimeAttr? runtime_attr_pesr_concat
-    RuntimeAttr? runtime_attr_depth_cluster
-    RuntimeAttr? runtime_attr_depth_concat
-    RuntimeAttr? runtime_attr_depth_vcf
-    RuntimeAttr? runtime_attr_rdtest_bed
 
     RuntimeAttr? runtime_attr_filter_vcf_by_id
 
@@ -370,7 +390,6 @@ workflow GATKSVPipelineSingleSample {
     File cytobands
 
     File mei_bed
-    File pe_exclude_list
     File depth_exclude_list
     File empty_file
 
@@ -396,8 +415,6 @@ workflow GATKSVPipelineSingleSample {
     RuntimeAttr? runtime_override_integrate_resolved_vcfs
     RuntimeAttr? runtime_override_rename_variants
     RuntimeAttr? runtime_override_rename_cleaned_samples
-
-    RuntimeAttr? runtime_override_breakpoint_overlap_filter
 
     # overrides for mini tasks
     RuntimeAttr? runtime_override_clean_background_fail
@@ -430,10 +447,7 @@ workflow GATKSVPipelineSingleSample {
     # overrides for ResolveComplexVariants
     RuntimeAttr? runtime_override_update_sr_list_pass
     RuntimeAttr? runtime_override_update_sr_list_fail
-    RuntimeAttr? runtime_override_integrate_resolved_vcfs
-    RuntimeAttr? runtime_override_rename_variants
     RuntimeAttr? runtime_override_breakpoint_overlap_filter
-    RuntimeAttr? runtime_override_subset_inversions
     RuntimeAttr? runtime_override_concat_resolve
 
     RuntimeAttr? runtime_override_get_se_cutoff
@@ -443,7 +457,6 @@ workflow GATKSVPipelineSingleSample {
     RuntimeAttr? runtime_override_resolve_cpx_per_shard
     RuntimeAttr? runtime_override_restore_unresolved_cnv_per_shard
     RuntimeAttr? runtime_override_concat_resolved_per_shard
-    RuntimeAttr? runtime_override_pull_vcf_shard
     RuntimeAttr? runtime_override_preconcat_resolve
     RuntimeAttr? runtime_override_hail_merge_resolve
     RuntimeAttr? runtime_override_fix_header_resolve
@@ -480,7 +493,7 @@ workflow GATKSVPipelineSingleSample {
     RuntimeAttr? runtime_override_preconcat_clean_final
     RuntimeAttr? runtime_override_hail_merge_clean_final
     RuntimeAttr? runtime_override_fix_header_clean_final
-    RuntimeAttr? runtime_override_concat_cleaned_vcfs
+    RuntimeAttr? runtime_override_fix_bad_ends
 
     RuntimeAttr? runtime_override_clean_vcf_1a
     RuntimeAttr? runtime_override_clean_vcf_2
@@ -521,26 +534,23 @@ workflow GATKSVPipelineSingleSample {
     RuntimeAttr? runtime_override_sort_drop_redundant_cnvs
 
     # overrides for VcfQc
+    RuntimeAttr? runtime_override_site_level_benchmark_plot
+    RuntimeAttr? runtime_override_per_sample_benchmark_plot
+    RuntimeAttr? runtime_override_subset_vcf
+    RuntimeAttr? runtime_override_preprocess_vcf
+    RuntimeAttr? runtime_override_site_level_benchmark
+    RuntimeAttr? runtime_override_merge_site_level_benchmark
+    RuntimeAttr? runtime_override_merge_sharded_per_sample_vid_lists
     RuntimeAttr? runtime_override_plot_qc_vcf_wide
-    RuntimeAttr? runtime_override_thousand_g_benchmark
-    RuntimeAttr? runtime_override_thousand_g_plot
-    RuntimeAttr? runtime_override_asc_benchmark
-    RuntimeAttr? runtime_override_asc_plot
-    RuntimeAttr? runtime_override_hgsv_benchmark
-    RuntimeAttr? runtime_override_hgsv_plot
     RuntimeAttr? runtime_override_plot_qc_per_sample
     RuntimeAttr? runtime_override_plot_qc_per_family
-    RuntimeAttr? runtime_override_sanders_per_sample_plot
-    RuntimeAttr? runtime_override_collins_per_sample_plot
-    RuntimeAttr? runtime_override_werling_per_sample_plot
     RuntimeAttr? runtime_override_sanitize_outputs
     RuntimeAttr? runtime_override_merge_vcfwide_stat_shards
     RuntimeAttr? runtime_override_merge_vcf_2_bed
     RuntimeAttr? runtime_override_collect_sharded_vcf_stats
     RuntimeAttr? runtime_override_svtk_vcf_2_bed
-    RuntimeAttr? runtime_override_split_vcf_to_qc
+    RuntimeAttr? runtime_override_scatter_vcf
     RuntimeAttr? runtime_override_merge_subvcf_stat_shards
-    RuntimeAttr? runtime_override_merge_svtk_vcf_2_bed
     RuntimeAttr? runtime_override_collect_vids_per_sample
     RuntimeAttr? runtime_override_split_samples_list
     RuntimeAttr? runtime_override_tar_shard_vid_lists
@@ -553,9 +563,9 @@ workflow GATKSVPipelineSingleSample {
     ############################################################
 
     File protein_coding_gtf
-    File linc_rna_gtf
-    File promoter_bed
     File noncoding_bed
+    Int? promoter_window
+    Int? max_breakend_as_cnv_length
     Int annotation_sv_per_shard
     Int annotation_max_shards_per_chrom_step1
     Int annotation_min_records_per_shard_step1
@@ -563,6 +573,8 @@ workflow GATKSVPipelineSingleSample {
     File? external_af_ref_bed             # bed file with population AFs for annotation
     String? external_af_ref_bed_prefix    # name of external AF bed file call set
     Array[String]? external_af_population # populations to annotate external AFs (required if ref_bed set, use "ALL" for all)
+
+    RuntimeAttr? runtime_attr_svannotate
 
     ############################################################
     ## Single sample filtering
@@ -591,16 +603,15 @@ workflow GATKSVPipelineSingleSample {
 
   }
 
-  String? delly_docker_ = if (!defined(case_delly_vcf) && use_delly) then delly_docker else NONE_STRING_
   String? manta_docker_ = if (!defined(case_manta_vcf) && use_manta) then manta_docker else NONE_STRING_
   String? melt_docker_ = if (!defined(case_melt_vcf) && use_melt) then melt_docker else NONE_STRING_
   String? scramble_docker_ = if (!defined(case_scramble_vcf) && use_scramble) then scramble_docker else NONE_STRING_
   String? wham_docker_ = if (!defined(case_wham_vcf) && use_wham) then wham_docker else NONE_STRING_
 
   Boolean collect_coverage = !defined(case_counts_file)
-  Boolean collect_pesr = !defined(case_pe_file) || !defined(case_sr_file)
+  Boolean collect_pesr = !defined(case_pe_file) || !defined(case_sr_file) || !defined(case_sd_file)
 
-  Boolean run_sampleevidence = defined(delly_docker_) || defined(manta_docker_) || defined(melt_docker_) || defined(scramble_docker_) || defined(wham_docker_) || collect_coverage || collect_pesr
+  Boolean run_sampleevidence = defined(manta_docker_) || defined(melt_docker_) || defined(scramble_docker_) || defined(wham_docker_) || collect_coverage || collect_pesr
 
   if (run_sampleevidence) {
     call sampleevidence.GatherSampleEvidence as GatherSampleEvidence {
@@ -621,6 +632,7 @@ workflow GATKSVPipelineSingleSample {
         manta_region_bed_index=manta_region_bed_index,
         manta_jobs_per_cpu=manta_jobs_per_cpu,
         manta_mem_gb_per_job=manta_mem_gb_per_job,
+        sd_locs_vcf=sd_locs_vcf,
         melt_standard_vcf_header=melt_standard_vcf_header,
         melt_metrics_intervals=melt_metrics_intervals,
         insert_size=insert_size,
@@ -634,7 +646,6 @@ workflow GATKSVPipelineSingleSample {
         run_module_metrics = run_sampleevidence_metrics,
         sv_pipeline_docker=sv_pipeline_docker,
         sv_base_mini_docker=sv_base_mini_docker,
-        delly_docker=delly_docker_,
         manta_docker=manta_docker_,
         melt_docker=melt_docker_,
         scramble_docker=scramble_docker_,
@@ -659,6 +670,7 @@ workflow GATKSVPipelineSingleSample {
   File case_counts_file_ = select_first([case_counts_file, GatherSampleEvidence.coverage_counts])
   File case_pe_file_ = select_first([case_pe_file, GatherSampleEvidence.pesr_disc])
   File case_sr_file_ = select_first([case_sr_file, GatherSampleEvidence.pesr_split])
+  File case_sd_file_ = select_first([case_sd_file, GatherSampleEvidence.pesr_sd])
 
   call evidenceqc.EvidenceQC as EvidenceQC {
     input:
@@ -679,9 +691,6 @@ workflow GATKSVPipelineSingleSample {
       wgd_score_runtime_attr=wgd_score_runtime_attr
   }
 
-  if (use_delly) {
-    Array[File] delly_vcfs_ = [select_first([case_delly_vcf, GatherSampleEvidence.delly_vcf])]
-  }
   if (use_manta) {
     Array[File] manta_vcfs_ = [select_first([case_manta_vcf, GatherSampleEvidence.manta_vcf])]
   }
@@ -695,6 +704,8 @@ workflow GATKSVPipelineSingleSample {
     Array[File] wham_vcfs_ = [select_first([case_wham_vcf, GatherSampleEvidence.wham_vcf])]
   }
 
+  Array[String] ref_samples = read_lines(ref_samples_list)
+
   call batchevidence.GatherBatchEvidence as GatherBatchEvidence {
     input:
       batch=batch,
@@ -704,8 +715,6 @@ workflow GATKSVPipelineSingleSample {
       ped_file=ref_ped_file,
       genome_file=genome_file,
       primary_contigs_fai=primary_contigs_fai,
-      ref_fasta=reference_fasta,
-      ref_fasta_index=reference_index,
       ref_dict=reference_dict,
       counts=[case_counts_file_],
       ref_panel_bincov_matrix=ref_panel_bincov_matrix,
@@ -714,12 +723,14 @@ workflow GATKSVPipelineSingleSample {
       PE_files=[case_pe_file_],
       cytoband=cytobands,
       mei_bed=mei_bed,
-      ref_panel_PE_files=ref_pesr_disc_files,
+      ref_panel_PE_files=read_lines(ref_pesr_disc_files_list),
       SR_files=[case_sr_file_],
-      ref_panel_SR_files=ref_pesr_split_files,
-      inclusion_bed=inclusion_bed,
+      ref_panel_SR_files=read_lines(ref_pesr_split_files_list),
+      SD_files=[case_sd_file_],
+      ref_panel_SD_files=read_lines(ref_pesr_sd_files_list),
+      sd_locs_vcf=sd_locs_vcf,
       contig_ploidy_model_tar = contig_ploidy_model_tar,
-      gcnv_model_tars = gcnv_model_tars,
+      gcnv_model_tars = read_lines(gcnv_model_tars_list),
       gatk4_jar_override = gatk4_jar_override,
       run_ploidy = true,
       append_first_sample_to_ped = true,
@@ -754,7 +765,6 @@ workflow GATKSVPipelineSingleSample {
       ref_copy_number_autosomal_contigs = ref_copy_number_autosomal_contigs,
       allosomal_contigs = allosomal_contigs,
       gcnv_qs_cutoff=gcnv_qs_cutoff,
-      delly_vcfs=delly_vcfs_,
       manta_vcfs=manta_vcfs_,
       melt_vcfs=melt_vcfs_,
       scramble_vcfs=scramble_vcfs_,
@@ -777,16 +787,9 @@ workflow GATKSVPipelineSingleSample {
       condense_counts_docker = condense_counts_docker,
       median_cov_runtime_attr=median_cov_runtime_attr,
       median_cov_mem_gb_per_sample=median_cov_mem_gb_per_sample,
-      runtime_attr_set_sample = runtime_attr_set_sample,
-      runtime_attr_shard_pe = runtime_attr_shard_pe,
-      runtime_attr_merge_pe = runtime_attr_merge_pe,
-      runtime_attr_shard_sr = runtime_attr_shard_sr,
-      runtime_attr_merge_sr = runtime_attr_merge_sr,
       evidence_merging_bincov_runtime_attr=evidence_merging_bincov_runtime_attr,
       cnmops_sample10_runtime_attr=cnmops_sample10_runtime_attr,
       cnmops_sample3_runtime_attr=cnmops_sample3_runtime_attr,
-      cnmops_mem_gb_override_sample10=cnmops_mem_gb_override_sample10,
-      cnmops_mem_gb_override_sample3=cnmops_mem_gb_override_sample3,
       preprocess_calls_runtime_attr=preprocess_calls_runtime_attr,
       depth_merge_set_runtime_attr=depth_merge_set_runtime_attr,
       depth_merge_sample_runtime_attr=depth_merge_sample_runtime_attr,
@@ -806,13 +809,49 @@ workflow GATKSVPipelineSingleSample {
   File combined_ped_file = select_first([GatherBatchEvidence.combined_ped_file])
 
   # Merge calls with reference panel
-  Array[File] merged_manta_vcfs_array = flatten([select_first([GatherBatchEvidence.std_manta_vcf]), ref_std_manta_vcfs])
-  Array[File] merged_wham_vcfs_array = flatten([select_first([GatherBatchEvidence.std_wham_vcf]), ref_std_wham_vcfs])
-  if (defined(GatherBatchEvidence.std_melt_vcf)) {
-    Array[File]? merged_melt_vcfs_array = flatten([select_first([GatherBatchEvidence.std_melt_vcf]), select_first([ref_std_melt_vcfs])])
+  if (defined(GatherBatchEvidence.std_manta_vcf_tar)) {
+    call utils.CombineTars as CombineMantaStd {
+      input:
+        tar1=ref_std_manta_vcf_tar,
+        tar2=select_first([GatherBatchEvidence.std_manta_vcf_tar]),
+        linux_docker=linux_docker,
+        runtime_attr_override=runtime_attr_combine_manta_std
+    }
   }
-  if (defined(GatherBatchEvidence.std_scramble_vcf)) {
-    Array[File]? merged_scramble_vcfs_array = flatten([select_first([GatherBatchEvidence.std_scramble_vcf]), select_first([ref_std_scramble_vcfs])])
+  if (defined(GatherBatchEvidence.std_wham_vcf_tar)) {
+    call utils.CombineTars as CombineWhamStd {
+      input:
+        tar1=ref_std_wham_vcf_tar,
+        tar2=select_first([GatherBatchEvidence.std_wham_vcf_tar]),
+        linux_docker=linux_docker,
+        runtime_attr_override=runtime_attr_combine_wham_std
+    }
+  }
+  if (defined(GatherBatchEvidence.std_scramble_vcf_tar) && defined(ref_std_scramble_vcf_tar)) {
+    call utils.CombineTars as CombineScrambleStd {
+      input:
+        tar1=select_first([ref_std_scramble_vcf_tar]),
+        tar2=select_first([GatherBatchEvidence.std_scramble_vcf_tar]),
+        linux_docker=linux_docker,
+        runtime_attr_override=runtime_attr_combine_scramble_std
+    }
+  }
+  if (defined(GatherBatchEvidence.std_melt_vcf_tar) && defined(ref_std_melt_vcf_tar)) {
+    call utils.CombineTars as CombineMeltStd {
+      input:
+        tar1=select_first([ref_std_melt_vcf_tar]),
+        tar2=select_first([GatherBatchEvidence.std_melt_vcf_tar]),
+        linux_docker=linux_docker,
+        runtime_attr_override=runtime_attr_combine_melt_std
+    }
+  }
+  File merged_manta_vcf_tar = select_first([CombineMantaStd.out, ref_std_manta_vcf_tar])
+  File merged_wham_vcf_tar = select_first([CombineWhamStd.out, ref_std_wham_vcf_tar])
+  if (defined(CombineScrambleStd.out) || defined(ref_std_scramble_vcf_tar)) {
+    File merged_scramble_vcf_tar = select_first([CombineScrambleStd.out, ref_std_scramble_vcf_tar])
+  }
+  if (defined(CombineMeltStd.out) || defined(ref_std_melt_vcf_tar)) {
+    File merged_melt_vcf_tar = select_first([CombineMeltStd.out, ref_std_melt_vcf_tar])
   }
 
   call dpn.MergeSet as MergeSetDel {
@@ -832,34 +871,60 @@ workflow GATKSVPipelineSingleSample {
       runtime_attr_override=runtime_attr_depth_merge_pre_clusterbatch
   }
 
-  call clusterbatch.ClusterBatch as ClusterBatch {
+  call clusterbatch.ClusterBatch {
     input:
-      manta_vcfs=merged_manta_vcfs_array,
-      wham_vcfs=merged_wham_vcfs_array,
-      melt_vcfs=merged_melt_vcfs_array,
-      scramble_vcfs=merged_scramble_vcfs_array,
+      manta_vcf_tar=merged_manta_vcf_tar,
+      wham_vcf_tar=merged_wham_vcf_tar,
+      scramble_vcf_tar=merged_scramble_vcf_tar,
+      melt_vcf_tar=merged_melt_vcf_tar,
       del_bed=MergeSetDel.out,
       dup_bed=MergeSetDup.out,
       batch=batch,
-      pesr_svsize=pesr_svsize,
-      pesr_frac=pesr_frac,
-      pesr_flags=pesr_flags,
-      pesr_distance=pesr_distance,
-      pesr_exclude_list=pesr_exclude_list,
-      depth_exclude_list=depth_exclude_list,
-      depth_exclude_list_frac_max=0.5,
-      depth_flags=depth_flags,
-      depth_frac=depth_frac,
-      contigs=primary_contigs_fai,
-      run_module_metrics = run_clusterbatch_metrics,
+      ped_file=combined_ped_file,
+      contig_list=primary_contigs_list,
+      reference_fasta=reference_fasta,
+      reference_fasta_fai=reference_index,
+      reference_dict=reference_dict,
+      chr_x=chr_x,
+      chr_y=chr_y,
+      depth_records_per_bed_shard=depth_records_per_bed_shard_cluster_batch,
+      depth_exclude_intervals=depth_exclude_list,
+      depth_exclude_overlap_fraction=depth_exclude_overlap_fraction,
+      depth_interval_overlap=depth_interval_overlap,
+      depth_clustering_algorithm=depth_clustering_algorithm,
+      pesr_min_size=pesr_min_size,
+      pesr_exclude_intervals=pesr_exclude_intervals,
+      pesr_interval_overlap=pesr_interval_overlap,
+      pesr_breakend_window=pesr_breakend_window,
+      pesr_clustering_algorithm=pesr_clustering_algorithm,
+      run_module_metrics=run_clusterbatch_metrics,
+      linux_docker=linux_docker,
+      sv_pipeline_base_docker=sv_pipeline_base_docker,
+      baseline_depth_vcf=baseline_depth_vcf_cluster_batch,
+      baseline_manta_vcf=baseline_manta_vcf_cluster_batch,
+      baseline_wham_vcf=baseline_wham_vcf_cluster_batch,
+      baseline_scramble_vcf=baseline_scramble_vcf_cluster_batch,
+      baseline_melt_vcf=baseline_melt_vcf_cluster_batch,
+      gatk_docker=gatk_docker,
       sv_base_mini_docker=sv_base_mini_docker,
       sv_pipeline_docker=sv_pipeline_docker,
-      runtime_attr_pesr_cluster=runtime_attr_pesr_cluster,
-      runtime_attr_pesr_concat=runtime_attr_pesr_concat,
-      runtime_attr_depth_cluster=runtime_attr_depth_cluster,
-      runtime_attr_depth_concat=runtime_attr_depth_concat,
-      runtime_attr_depth_vcf=runtime_attr_depth_vcf,
-      runtime_attr_rdtest_bed=runtime_attr_rdtest_bed,
+      java_mem_fraction=java_mem_fraction_cluster_batch,
+      runtime_attr_ids_from_vcf_list=runtime_attr_ids_from_vcf_list_cluster_batch,
+      runtime_attr_create_ploidy=runtime_attr_create_ploidy_cluster_batch,
+      runtime_attr_prepare_pesr_vcfs=runtime_attr_prepare_pesr_vcfs_cluster_batch,
+      runtime_attr_svcluster_manta=runtime_attr_svcluster_manta_cluster_batch,
+      runtime_attr_svcluster_melt=runtime_attr_svcluster_melt_cluster_batch,
+      runtime_attr_svcluster_wham=runtime_attr_svcluster_wham_cluster_batch,
+      runtime_attr_svcluster_scramble=runtime_attr_svcluster_scramble_cluster_batch,
+      runtime_override_concat_vcfs_pesr=runtime_override_concat_vcfs_pesr_cluster_batch,
+      runtime_attr_gatk_to_svtk_vcf_pesr=runtime_attr_gatk_to_svtk_vcf_pesr_cluster_batch,
+      runtime_attr_scatter_bed=runtime_attr_scatter_bed_cluster_batch,
+      runtime_attr_cnv_bed_to_gatk_vcf=runtime_attr_cnv_bed_to_gatk_vcf_cluster_batch,
+      runtime_attr_exclude_intervals_depth=runtime_attr_exclude_intervals_depth_cluster_batch,
+      runtime_attr_svcluster_depth=runtime_attr_svcluster_depth_cluster_batch,
+      runtime_attr_gatk_to_svtk_vcf_depth=runtime_attr_gatk_to_svtk_vcf_depth_cluster_batch,
+      runtime_override_concat_vcfs_depth=runtime_override_concat_vcfs_depth_cluster_batch,
+      runtime_attr_exclude_intervals_pesr=runtime_attr_exclude_intervals_pesr_cluster_batch
   }
 
   # Pull out clustered calls from this sample only
@@ -903,16 +968,6 @@ workflow GATKSVPipelineSingleSample {
             runtime_attr_override=runtime_attr_filter_vcf_by_id
     }
   }
-  if (use_delly) {
-    call SingleSampleFiltering.FilterVcfBySampleGenotypeAndAddEvidenceAnnotation as FilterDelly {
-        input :
-            vcf_gz=select_first([ClusterBatch.clustered_delly_vcf]),
-            sample_id=sample_id,
-            evidence="RD,PE,SR",
-            sv_base_mini_docker=sv_base_mini_docker,
-            runtime_attr_override=runtime_attr_filter_vcf_by_id
-    }
-  }
 
   call SingleSampleFiltering.FilterVcfBySampleGenotypeAndAddEvidenceAnnotation as FilterDepth {
     input :
@@ -923,21 +978,19 @@ workflow GATKSVPipelineSingleSample {
       runtime_attr_override=runtime_attr_filter_vcf_by_id
   }
 
-  call filterbatch.MergePesrVcfs as MergePesrVcfs {
+  call tasks_makecohortvcf.ConcatVcfs as MergePesrVcfs {
     input:
-      manta_vcf=FilterManta.out,
-      wham_vcf=FilterWham.out,
-      melt_vcf=FilterMelt.out,
-      scramble_vcf=FilterScramble.out,
-      delly_vcf=FilterDelly.out,
-      batch=batch,
+      vcfs=select_all([FilterManta.out, FilterWham.out, FilterScramble.out, FilterMelt.out]),
+      vcfs_idx=select_all([FilterManta.out_index, FilterWham.out_index, FilterScramble.out_index, FilterMelt.out_index]),
+      allow_overlaps=true,
+      outfile_prefix="~{batch}.filtered_pesr_merged",
       sv_base_mini_docker=sv_base_mini_docker,
       runtime_attr_override=runtime_attr_merge_pesr_vcfs
   }
 
   call SingleSampleFiltering.FilterLargePESRCallsWithoutRawDepthSupport as FilterLargePESRCallsWithoutRawDepthSupport {
     input:
-      pesr_vcf=MergePesrVcfs.merged_pesr_vcf,
+      pesr_vcf=MergePesrVcfs.concat_vcf,
       raw_dels=GatherBatchEvidence.merged_dels,
       raw_dups=GatherBatchEvidence.merged_dups,
       min_large_pesr_call_size_for_filtering=min_large_pesr_call_size_for_filtering,
@@ -1088,14 +1141,11 @@ workflow GATKSVPipelineSingleSample {
       bincov_files=[GatherBatchEvidence.merged_bincov],
 
       mei_bed=mei_bed,
-      pe_exclude_list=pe_exclude_list,
+      pe_exclude_list=pesr_exclude_intervals,
       depth_exclude_list=depth_exclude_list,
       empty_file=empty_file,
 
       cohort_name=batch,
-      sanders_2015_tarball=Sanders_2015_tarball,
-      collins_2017_tarball=Collins_2017_tarball,
-      werling_2018_tarball=Werling_2018_tarball,
 
       rf_cutoff_files=[cutoffs],
       batches=[batch],
@@ -1116,6 +1166,9 @@ workflow GATKSVPipelineSingleSample {
 
       run_module_metrics = run_makecohortvcf_metrics,
 
+      primary_contigs_list=primary_contigs_list,
+      sv_pipeline_base_docker=sv_pipeline_base_docker,
+
       linux_docker=linux_docker,
       sv_pipeline_docker=sv_pipeline_docker,
       sv_pipeline_hail_docker=sv_pipeline_hail_docker,
@@ -1133,7 +1186,6 @@ workflow GATKSVPipelineSingleSample {
       runtime_override_breakpoint_overlap_filter=runtime_override_breakpoint_overlap_filter,
       runtime_override_clean_background_fail=runtime_override_clean_background_fail,
       runtime_override_make_cpx_cnv_input_file=runtime_override_make_cpx_cnv_input_file,
-      runtime_override_subset_inversions=runtime_override_subset_inversions,
       runtime_override_concat_merged_vcfs=runtime_override_concat_merged_vcfs,
       runtime_override_concat_cpx_vcfs=runtime_override_concat_cpx_vcfs,
       runtime_override_concat_cleaned_vcfs=runtime_override_concat_cleaned_vcfs,
@@ -1157,9 +1209,6 @@ workflow GATKSVPipelineSingleSample {
       runtime_override_concat_large_pesr_depth=runtime_override_concat_large_pesr_depth,
       runtime_override_update_sr_list_pass=runtime_override_update_sr_list_pass,
       runtime_override_update_sr_list_fail=runtime_override_update_sr_list_fail,
-      runtime_override_integrate_resolved_vcfs=runtime_override_integrate_resolved_vcfs,
-      runtime_override_rename_variants=runtime_override_rename_variants,
-      runtime_override_breakpoint_overlap_filter=runtime_override_breakpoint_overlap_filter,
       runtime_override_subset_inversions=runtime_override_subset_inversions,
       runtime_override_concat_resolve=runtime_override_concat_resolve,
       runtime_override_get_se_cutoff=runtime_override_get_se_cutoff,
@@ -1169,7 +1218,6 @@ workflow GATKSVPipelineSingleSample {
       runtime_override_resolve_cpx_per_shard=runtime_override_resolve_cpx_per_shard,
       runtime_override_restore_unresolved_cnv_per_shard=runtime_override_restore_unresolved_cnv_per_shard,
       runtime_override_concat_resolved_per_shard=runtime_override_concat_resolved_per_shard,
-      runtime_override_pull_vcf_shard=runtime_override_pull_vcf_shard,
       runtime_override_preconcat_resolve=runtime_override_preconcat_resolve,
       runtime_override_hail_merge_resolve=runtime_override_hail_merge_resolve,
       runtime_override_fix_header_resolve=runtime_override_fix_header_resolve,
@@ -1201,7 +1249,6 @@ workflow GATKSVPipelineSingleSample {
       runtime_override_preconcat_clean_final=runtime_override_preconcat_clean_final,
       runtime_override_hail_merge_clean_final=runtime_override_hail_merge_clean_final,
       runtime_override_fix_header_clean_final=runtime_override_fix_header_clean_final,
-      runtime_override_concat_cleaned_vcfs=runtime_override_concat_cleaned_vcfs,
       runtime_override_clean_vcf_1a=runtime_override_clean_vcf_1a,
       runtime_override_clean_vcf_2=runtime_override_clean_vcf_2,
       runtime_override_clean_vcf_3=runtime_override_clean_vcf_3,
@@ -1235,32 +1282,30 @@ workflow GATKSVPipelineSingleSample {
       runtime_override_drop_redundant_cnvs=runtime_override_drop_redundant_cnvs,
       runtime_override_combine_step_1_vcfs=runtime_override_combine_step_1_vcfs,
       runtime_override_sort_drop_redundant_cnvs=runtime_override_sort_drop_redundant_cnvs,
+      runtime_override_site_level_benchmark_plot=runtime_override_site_level_benchmark_plot,
+      runtime_override_per_sample_benchmark_plot=runtime_override_per_sample_benchmark_plot,
+      runtime_override_subset_vcf=runtime_override_subset_vcf,
+      runtime_override_preprocess_vcf=runtime_override_preprocess_vcf,
+      runtime_override_site_level_benchmark=runtime_override_site_level_benchmark,
+      runtime_override_merge_site_level_benchmark=runtime_override_merge_site_level_benchmark,
+      runtime_override_merge_sharded_per_sample_vid_lists=runtime_override_merge_sharded_per_sample_vid_lists,
       runtime_override_plot_qc_vcf_wide=runtime_override_plot_qc_vcf_wide,
-      runtime_override_thousand_g_benchmark=runtime_override_thousand_g_benchmark,
-      runtime_override_thousand_g_plot=runtime_override_thousand_g_plot,
-      runtime_override_asc_benchmark=runtime_override_asc_benchmark,
-      runtime_override_asc_plot=runtime_override_asc_plot,
-      runtime_override_hgsv_benchmark=runtime_override_hgsv_benchmark,
-      runtime_override_hgsv_plot=runtime_override_hgsv_plot,
       runtime_override_plot_qc_per_sample=runtime_override_plot_qc_per_sample,
       runtime_override_plot_qc_per_family=runtime_override_plot_qc_per_family,
-      runtime_override_sanders_per_sample_plot=runtime_override_sanders_per_sample_plot,
-      runtime_override_collins_per_sample_plot=runtime_override_collins_per_sample_plot,
-      runtime_override_werling_per_sample_plot=runtime_override_werling_per_sample_plot,
       runtime_override_sanitize_outputs=runtime_override_sanitize_outputs,
       runtime_override_merge_vcfwide_stat_shards=runtime_override_merge_vcfwide_stat_shards,
       runtime_override_merge_vcf_2_bed=runtime_override_merge_vcf_2_bed,
       runtime_override_collect_sharded_vcf_stats=runtime_override_collect_sharded_vcf_stats,
       runtime_override_svtk_vcf_2_bed=runtime_override_svtk_vcf_2_bed,
-      runtime_override_split_vcf_to_qc=runtime_override_split_vcf_to_qc,
+      runtime_override_scatter_vcf=runtime_override_scatter_vcf,
       runtime_override_merge_subvcf_stat_shards=runtime_override_merge_subvcf_stat_shards,
-      runtime_override_merge_svtk_vcf_2_bed=runtime_override_merge_svtk_vcf_2_bed,
       runtime_override_collect_vids_per_sample=runtime_override_collect_vids_per_sample,
       runtime_override_split_samples_list=runtime_override_split_samples_list,
       runtime_override_tar_shard_vid_lists=runtime_override_tar_shard_vid_lists,
       runtime_override_benchmark_samples=runtime_override_benchmark_samples,
       runtime_override_split_shuffled_list=runtime_override_split_shuffled_list,
-      runtime_override_merge_and_tar_shard_benchmarks=runtime_override_merge_and_tar_shard_benchmarks
+      runtime_override_merge_and_tar_shard_benchmarks=runtime_override_merge_and_tar_shard_benchmarks,
+      runtime_override_fix_bad_ends=runtime_override_fix_bad_ends
 
   }
 
@@ -1358,9 +1403,9 @@ workflow GATKSVPipelineSingleSample {
         prefix = batch,
         contig_list = primary_contigs_list,
         protein_coding_gtf = protein_coding_gtf,
-        linc_rna_gtf = linc_rna_gtf,
-        promoter_bed = promoter_bed,
         noncoding_bed = noncoding_bed,
+        promoter_window = promoter_window,
+        max_breakend_as_cnv_length = max_breakend_as_cnv_length,
         ref_bed = external_af_ref_bed,
         ref_prefix = external_af_ref_bed_prefix,
         population = external_af_population,
@@ -1368,7 +1413,9 @@ workflow GATKSVPipelineSingleSample {
         max_shards_per_chrom_step1 = annotation_max_shards_per_chrom_step1,
         min_records_per_shard_step1 = annotation_min_records_per_shard_step1,
         sv_base_mini_docker = sv_base_mini_docker,
-        sv_pipeline_docker = sv_pipeline_docker
+        sv_pipeline_docker = sv_pipeline_docker,
+        gatk_docker = gatk_docker,
+        runtime_attr_svannotate = runtime_attr_svannotate
   }
 
   call SingleSampleFiltering.VcfToBed as VcfToBed {
@@ -1378,12 +1425,13 @@ workflow GATKSVPipelineSingleSample {
       sv_pipeline_docker = sv_pipeline_docker
   }
 
-  call SingleSampleFiltering.FinalVCFCleanup as FinalVCFCleanup {
+  call SingleSampleFiltering.UpdateBreakendRepresentation {
     input:
-      single_sample_vcf=AnnotateVcf.output_vcf,
-      single_sample_vcf_idx=AnnotateVcf.output_vcf_idx,
+      vcf=AnnotateVcf.output_vcf,
+      vcf_idx=AnnotateVcf.output_vcf_idx,
       ref_fasta=reference_fasta,
       ref_fasta_idx=reference_index,
+      prefix=basename(AnnotateVcf.output_vcf, ".vcf.gz") + ".final_cleanup",
       sv_pipeline_docker=sv_pipeline_docker
   }
 
@@ -1397,7 +1445,7 @@ workflow GATKSVPipelineSingleSample {
       sample_sr = case_sr_file_,
       sample_counts = case_counts_file_,
       cleaned_vcf = MakeCohortVcf.vcf,
-      final_vcf = FinalVCFCleanup.out,
+      final_vcf = UpdateBreakendRepresentation.out,
       genotyped_pesr_vcf = ConvertCNVsWithoutDepthSupportToBNDs.out_vcf,
       genotyped_depth_vcf = GenotypeBatch.genotyped_depth_vcf,
       non_genotyped_unique_depth_calls_vcf = GetUniqueNonGenotypedDepthCalls.out,
@@ -1415,8 +1463,8 @@ workflow GATKSVPipelineSingleSample {
   }
 
   output {
-    File final_vcf = FinalVCFCleanup.out
-    File final_vcf_idx = FinalVCFCleanup.out_idx
+    File final_vcf = UpdateBreakendRepresentation.out
+    File final_vcf_idx = UpdateBreakendRepresentation.out_idx
 
     File final_bed = VcfToBed.bed
 
@@ -1426,8 +1474,8 @@ workflow GATKSVPipelineSingleSample {
     File pre_cleanup_vcf = AnnotateVcf.output_vcf
     File pre_cleanup_vcf_idx = AnnotateVcf.output_vcf_idx
 
-    File ploidy_matrix = select_first([GatherBatchEvidence.ploidy_matrix])
-    File ploidy_plots = select_first([GatherBatchEvidence.ploidy_plots])
+    File ploidy_matrix = select_first([GatherBatchEvidence.batch_ploidy_matrix])
+    File ploidy_plots = select_first([GatherBatchEvidence.batch_ploidy_plots])
     File metrics_file = SingleSampleMetrics.metrics_file
     File qc_file = SingleSampleQC.out
 

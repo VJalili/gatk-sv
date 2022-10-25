@@ -142,7 +142,8 @@ jobs:
           python build_docker.py \
             --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
             --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
-            --image-tag ${{ needs.build_args_job.outputs.image_tag }}
+            --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
+            --prune-after-each-image
 
   publish_job:
     # This job first configures gcloud with the authentication of a
@@ -163,6 +164,8 @@ jobs:
         with:
           # See the comment on build_args_job.
           fetch-depth: 0
+          # Authenticates git using the bot's access token.
+          token: ${{ secrets.BOT_PAT }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -212,14 +215,17 @@ jobs:
             --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
             --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
             --gcr-project ${{ secrets.GCP_PROJECT_ID }}/gatk-sv \
-            --image-tag ${{ needs.build_args_job.outputs.image_tag }}
+            --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
+            --prune-after-each-image
           CHANGED=$(git diff --quiet ./inputs/values/dockers.json || echo True)
           echo "::set-output name=CHANGED::$CHANGED"
 
       - name: Commit Changes to dockers.json
         if: steps.build_and_publish.outputs.CHANGED
         run: |
+          COMMIT_SHA=${{ needs.build_args_job.outputs.head_sha }}
           git config --global user.name 'gatk-sv-bot'
           git config --global user.email '101641599+gatk-sv-bot@users.noreply.github.com'
-          git commit -am "Update dockers.json with newly built and published images."
+          git commit ./inputs/values/dockers.json -m "Update docker images list, triggered by "${COMMIT_SHA::8}
+          git pull --rebase origin master
           git push
