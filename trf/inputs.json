@@ -1,0 +1,4 @@
+{
+  "RepeatFinderWorkflow.fastas": ["gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"],
+  "RepeatFinderWorkflow.output_prefix": "test"
+}

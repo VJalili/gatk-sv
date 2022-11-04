@@ -1,0 +1,397 @@
+{
+  "workflowName": "RepeatFinderWorkflow",
+  "workflowProcessingEvents": [
+    {
+      "cromwellId": "cromid-953debb",
+      "description": "Finished",
+      "timestamp": "2022-11-01T00:31:33.375Z",
+      "cromwellVersion": "77-b5699f6"
+    },
+    {
+      "cromwellId": "cromid-953debb",
+      "description": "PickedUp",
+      "timestamp": "2022-10-31T19:24:01.482Z",
+      "cromwellVersion": "77-b5699f6"
+    }
+  ],
+  "actualWorkflowLanguageVersion": "draft-2",
+  "calls": {
+    "RepeatFinderWorkflow.RepeatFinder": [
+      {
+        "preemptible": false,
+        "executionStatus": "Done",
+        "stdout": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/stdout",
+        "backendStatus": "Success",
+        "compressedDockerSize": 480066979,
+        "commandLine": "set -euxo pipefail\n\nFASTA_FILENAME=/cromwell_root/gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta\ntrf /cromwell_root/gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta 2 3 5 80 10 8 50 -d -h -l 6 -ngs > output.dat",
+        "shardIndex": 0,
+        "jes": {
+          "endpointUrl": "https://genomics.googleapis.com/",
+          "machineType": "custom-2-8192",
+          "googleProject": "broad-dsde-methods",
+          "monitoringScript": "gs://gatk-sv-resources/resources/cromwell_monitoring_script2.sh",
+          "executionBucket": "gs://broad-methods-cromwell-exec-bucket-instance-8",
+          "zone": "us-central1-b",
+          "instanceName": "google-pipelines-worker-6a5943bfdaa2cf9c02eedca105761882"
+        },
+        "outputs": {
+          "output_dat": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/output.dat"
+        },
+        "runtimeAttributes": {
+          "preemptible": "0",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 10 SSD",
+          "continueOnReturnCode": "0",
+          "docker": "vjalili/trf:01",
+          "maxRetries": "0",
+          "cpu": "1",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-b",
+          "memoryMin": "2 GB",
+          "memory": "8 GB"
+        },
+        "callCaching": {
+          "allowResultReuse": true,
+          "hit": false,
+          "result": "Cache Miss",
+          "hashes": {
+            "output count": "C4CA4238A0B923820DCC509A6F75849B",
+            "runtime attribute": {
+              "docker": "0327478759DBC93E0856A1A1A0C2550B",
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            },
+            "output expression": {
+              "File output_dat": "214492C47A4A5C4E3E00F0FC1459D7AB"
+            },
+            "input count": "45C48CCE2E2D7FBDEA1AFC51C7C6AD26",
+            "backend name": "85D6F63859525E464173387636E20324",
+            "command template": "77F394677FDD140A6F0F87F08E420D90",
+            "input": {
+              "Int max_repeat_unit_size": "C0C7C76D30BD3DCAEFC96F40275BDC0A",
+              "Int pi": "D3D9446802A44259755D38E6D163E820",
+              "Int minscore": "C9F0F895FB98AB9159F51FD0297E236D",
+              "File fasta": "JFOHtA==",
+              "Int match_score": "C81E728D9D4C2F636F067F89CC14862C",
+              "Int indel_score": "E4DA3B7FBBCE2345D7772B0674A318D5",
+              "Int pm": "F033AB37C30201F73F142449D037028D",
+              "Int disk_size": "D3D9446802A44259755D38E6D163E820",
+              "Int mismatch_score": "ECCBC87E4B5CE2FE28308FD9F2A7BAF3"
+            }
+          },
+          "effectiveCallCachingMode": "ReadAndWriteCache"
+        },
+        "inputs": {
+          "pm": 80,
+          "fasta": "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta",
+          "pi": 10,
+          "max_repeat_unit_size": 50,
+          "disk_size": 10,
+          "mismatch_score": 3,
+          "match_score": 2,
+          "minscore": 8,
+          "indel_score": 5
+        },
+        "backendLabels": {
+          "wdl-task-name": "repeatfinder",
+          "cromwell-workflow-id": "cromwell-5c242b82-05f3-41f0-98c7-78d4a9187a6d"
+        },
+        "returnCode": 0,
+        "labels": {
+          "wdl-task-name": "RepeatFinder",
+          "cromwell-workflow-id": "cromwell-5c242b82-05f3-41f0-98c7-78d4a9187a6d"
+        },
+        "jobId": "projects/broad-dsde-methods/operations/469942409362622650",
+        "monitoringLog": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/monitoring.log",
+        "backend": "PAPIv2",
+        "end": "2022-11-01T00:22:46.364Z",
+        "dockerImageUsed": "vjalili/trf@sha256:e3646a2a528e237169ff9c69f465aa3e9cadba4ad4fe4cbb0575967da16401d8",
+        "stderr": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/stderr",
+        "callRoot": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0",
+        "attempt": 1,
+        "executionEvents": [
+          {
+            "description": "Background",
+            "startTime": "2022-10-31T19:25:59.701Z",
+            "endTime": "2022-10-31T19:26:00.457Z"
+          },
+          {
+            "description": "Delocalization",
+            "startTime": "2022-11-01T00:13:23.752Z",
+            "endTime": "2022-11-01T00:16:10.837Z"
+          },
+          {
+            "startTime": "2022-11-01T00:16:10.837Z",
+            "description": "Complete in GCE / Cromwell Poll Interval",
+            "endTime": "2022-11-01T00:22:42.530Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:42.530Z",
+            "description": "UpdatingCallCache",
+            "endTime": "2022-11-01T00:22:45.393Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:10.797Z",
+            "description": "CallCacheReading",
+            "endTime": "2022-10-31T19:24:10.810Z"
+          },
+          {
+            "startTime": "2022-11-01T00:16:10.837Z",
+            "description": "Worker released",
+            "endTime": "2022-11-01T00:16:10.837Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:23.447Z",
+            "description": "Worker \"google-pipelines-worker-6a5943bfdaa2cf9c02eedca105761882\" assigned in \"us-central1-b\" on a \"custom-2-8192\" machine",
+            "endTime": "2022-10-31T19:24:57.205Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:45.393Z",
+            "description": "UpdatingJobStore",
+            "endTime": "2022-11-01T00:22:46.364Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:10.810Z",
+            "description": "RunningJob",
+            "endTime": "2022-10-31T19:24:11.692Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:05.685Z",
+            "description": "Pending",
+            "endTime": "2022-10-31T19:24:05.685Z"
+          },
+          {
+            "description": "ContainerSetup",
+            "startTime": "2022-10-31T19:25:55.471Z",
+            "endTime": "2022-10-31T19:25:59.447Z"
+          },
+          {
+            "description": "UserAction",
+            "startTime": "2022-10-31T19:27:40.034Z",
+            "endTime": "2022-11-01T00:13:23.752Z"
+          },
+          {
+            "description": "Localization",
+            "startTime": "2022-10-31T19:26:00.457Z",
+            "endTime": "2022-10-31T19:27:40.034Z"
+          },
+          {
+            "description": "Pulling \"vjalili/trf@sha256:e3646a2a528e237169ff9c69f465aa3e9cadba4ad4fe4cbb0575967da16401d8\"",
+            "startTime": "2022-10-31T19:25:15.752Z",
+            "endTime": "2022-10-31T19:25:55.471Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:10.281Z",
+            "description": "PreparingJob",
+            "endTime": "2022-10-31T19:24:10.797Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:11.692Z",
+            "description": "waiting for quota",
+            "endTime": "2022-10-31T19:24:23.447Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:10.281Z",
+            "description": "WaitingForValueStore",
+            "endTime": "2022-10-31T19:24:10.281Z"
+          },
+          {
+            "startTime": "2022-10-31T19:24:05.685Z",
+            "description": "RequestingExecutionToken",
+            "endTime": "2022-10-31T19:24:10.281Z"
+          },
+          {
+            "description": "Pulling \"gcr.io/google.com/cloudsdktool/cloud-sdk:354.0.0-alpine\"",
+            "startTime": "2022-10-31T19:24:57.205Z",
+            "endTime": "2022-10-31T19:25:15.752Z"
+          }
+        ],
+        "backendLogs": {
+          "log": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/RepeatFinder-0.log"
+        },
+        "start": "2022-10-31T19:24:05.685Z"
+      }
+    ],
+    "RepeatFinderWorkflow.GatherDatToBed": [
+      {
+        "preemptible": false,
+        "retryableFailure": false,
+        "executionStatus": "Failed",
+        "stdout": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/stdout",
+        "backendStatus": "Failed",
+        "compressedDockerSize": 480066979,
+        "commandLine": "set -euxo pipefail\n\ncat /cromwell_root/broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/output.dat > test.dat\npython /opt/trf/dat_to_bed.py --max-repeat-unit-size 50 --max-repeat-total-length 1000000000 test.dat test.bed\nbedtools sort -i test.bed > test.sorted.bed\nigvtools index test.sorted.bed",
+        "shardIndex": -1,
+        "jes": {
+          "endpointUrl": "https://genomics.googleapis.com/",
+          "machineType": "custom-4-16384",
+          "googleProject": "broad-dsde-methods",
+          "monitoringScript": "gs://gatk-sv-resources/resources/cromwell_monitoring_script2.sh",
+          "executionBucket": "gs://broad-methods-cromwell-exec-bucket-instance-8",
+          "zone": "us-central1-b",
+          "instanceName": "google-pipelines-worker-b9391f44d275acffa44ea541b9cae712"
+        },
+        "runtimeAttributes": {
+          "preemptible": "0",
+          "failOnStderr": "false",
+          "bootDiskSizeGb": "10",
+          "disks": "local-disk 20 SSD",
+          "continueOnReturnCode": "0",
+          "docker": "vjalili/trf:01",
+          "maxRetries": "0",
+          "cpu": "2",
+          "cpuMin": "1",
+          "noAddress": "false",
+          "zones": "us-central1-b",
+          "memoryMin": "2 GB",
+          "memory": "16 GB"
+        },
+        "callCaching": {
+          "allowResultReuse": false,
+          "hit": false,
+          "result": "Cache Miss",
+          "hashes": {
+            "output count": "A87FF679A2F3E71D9181A67B7542122C",
+            "runtime attribute": {
+              "docker": "0327478759DBC93E0856A1A1A0C2550B",
+              "continueOnReturnCode": "CFCD208495D565EF66E7DFF9F98764DA",
+              "failOnStderr": "68934A3E9455FA72420237EB05902327"
+            },
+            "output expression": {
+              "File output_sorted_bed": "21C23F52EF5C3FDCE8BF5F1A24F3610B",
+              "File output_bed": "C9DF7DE524F910A97752FE200270B22A",
+              "File output_sorted_bed_idx": "AC656F30A6D2F08D5A40596A4B70BFC2",
+              "File combined_dat": "5B67CD7D5476E985711267FFF8347591"
+            },
+            "input count": "E4DA3B7FBBCE2345D7772B0674A318D5",
+            "backend name": "85D6F63859525E464173387636E20324",
+            "command template": "FD9D094779EA5B92D13E0359141DD09D",
+            "input": {
+              "File input_dat_files": [
+                "vVLe0Q=="
+              ],
+              "Int max_repeat_unit_size": "C0C7C76D30BD3DCAEFC96F40275BDC0A",
+              "Int max_repeat_total_length": "A4BCAEE7D57E19735590B480FEAEBDDB",
+              "String output_prefix": "303B5C8988601647873B4FFD247D83CB",
+              "Int disk_size": "98F13708210194C475687BE6106A3B84"
+            }
+          },
+          "effectiveCallCachingMode": "ReadAndWriteCache"
+        },
+        "inputs": {
+          "max_repeat_unit_size": 50,
+          "output_prefix": "test",
+          "disk_size": 20,
+          "input_dat_files": [
+            "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-RepeatFinder/shard-0/output.dat"
+          ],
+          "max_repeat_total_length": 1000000000
+        },
+        "backendLabels": {
+          "wdl-task-name": "gatherdattobed",
+          "cromwell-workflow-id": "cromwell-5c242b82-05f3-41f0-98c7-78d4a9187a6d"
+        },
+        "returnCode": 1,
+        "labels": {
+          "wdl-task-name": "GatherDatToBed",
+          "cromwell-workflow-id": "cromwell-5c242b82-05f3-41f0-98c7-78d4a9187a6d"
+        },
+        "failures": [
+          {
+            "message": "Task RepeatFinderWorkflow.GatherDatToBed:NA:1 failed. Job exit code 1. Check gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/stderr for more information. PAPI error code 9. Please check the log file for more details: gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/GatherDatToBed.log.",
+            "causedBy": []
+          }
+        ],
+        "jobId": "projects/broad-dsde-methods/operations/1921646778246356882",
+        "monitoringLog": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/monitoring.log",
+        "backend": "PAPIv2",
+        "end": "2022-11-01T00:31:31.353Z",
+        "stderr": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/stderr",
+        "callRoot": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed",
+        "attempt": 1,
+        "executionEvents": [
+          {
+            "startTime": "2022-11-01T00:31:30.344Z",
+            "description": "UpdatingJobStore",
+            "endTime": "2022-11-01T00:31:31.353Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:49.091Z",
+            "description": "RequestingExecutionToken",
+            "endTime": "2022-11-01T00:22:50.291Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:50.333Z",
+            "description": "CallCacheReading",
+            "endTime": "2022-11-01T00:22:50.345Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:50.345Z",
+            "description": "RunningJob",
+            "endTime": "2022-11-01T00:31:30.344Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:50.291Z",
+            "description": "PreparingJob",
+            "endTime": "2022-11-01T00:22:50.333Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:50.291Z",
+            "description": "WaitingForValueStore",
+            "endTime": "2022-11-01T00:22:50.291Z"
+          },
+          {
+            "startTime": "2022-11-01T00:22:49.091Z",
+            "description": "Pending",
+            "endTime": "2022-11-01T00:22:49.091Z"
+          }
+        ],
+        "backendLogs": {
+          "log": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/GatherDatToBed.log"
+        },
+        "start": "2022-11-01T00:22:49.091Z"
+      }
+    ]
+  },
+  "outputs": {},
+  "workflowRoot": "gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/",
+  "actualWorkflowLanguage": "WDL",
+  "id": "5c242b82-05f3-41f0-98c7-78d4a9187a6d",
+  "inputs": {
+    "RepeatFinderWorkflow.mismatch_score": 3,
+    "RepeatFinderWorkflow.minscore": 8,
+    "RepeatFinderWorkflow.RepeatFinder.pm": 80,
+    "RepeatFinderWorkflow.output_prefix": "test",
+    "RepeatFinderWorkflow.match_score": 2,
+    "RepeatFinderWorkflow.RepeatFinder.disk_size": 10,
+    "RepeatFinderWorkflow.GatherDatToBed.disk_size": 20,
+    "RepeatFinderWorkflow.fastas": [
+      "gs://gcp-public-data--broad-references/Homo_sapiens_assembly38_noALT_noHLA_noDecoy/v0/Homo_sapiens_assembly38_noALT_noHLA_noDecoy.fasta"
+    ],
+    "RepeatFinderWorkflow.max_repeat_total_length": 1000000000,
+    "RepeatFinderWorkflow.RepeatFinder.pi": 10,
+    "RepeatFinderWorkflow.max_repeat_unit_size": 50,
+    "RepeatFinderWorkflow.indel_score": 5
+  },
+  "labels": {
+    "cromwell-workflow-id": "cromwell-5c242b82-05f3-41f0-98c7-78d4a9187a6d"
+  },
+  "submission": "2022-10-31T19:23:49.919Z",
+  "status": "Failed",
+  "failures": [
+    {
+      "causedBy": [
+        {
+          "message": "Task RepeatFinderWorkflow.GatherDatToBed:NA:1 failed. Job exit code 1. Check gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/stderr for more information. PAPI error code 9. Please check the log file for more details: gs://broad-methods-cromwell-exec-bucket-instance-8/RepeatFinderWorkflow/5c242b82-05f3-41f0-98c7-78d4a9187a6d/call-GatherDatToBed/GatherDatToBed.log.",
+          "causedBy": []
+        }
+      ],
+      "message": "Workflow failed"
+    }
+  ],
+  "end": "2022-11-01T00:31:33.375Z",
+  "start": "2022-10-31T19:24:01.484Z"
+}
+
