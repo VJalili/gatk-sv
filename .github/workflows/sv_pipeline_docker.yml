@@ -213,7 +213,7 @@ jobs:
       - name: Authorize Docker to push to Azure
         uses: azure/docker-login@v1
         with:
-          login-server: 'vahid.azureecr.io'
+          login-server: 'vahid.azurecr.io'
           username: ${{ secrets.AZ_USERNAME }}
           password: ${{ secrets.AZ_PASSWORD }}
           
