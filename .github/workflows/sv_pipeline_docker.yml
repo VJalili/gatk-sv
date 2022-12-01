@@ -209,17 +209,26 @@ jobs:
           sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
           sudo mv "$tmp" /etc/docker/daemon.json
           sudo systemctl restart docker.service
+          
+      - name: Authorize Docker to push to Azure
+        uses: azure/docker-login@v1
+        with:
+          login-server: 'vahid.azureecr.io'
+          username: ${{ secrets.AZ_USERNAME }}
+          password: ${{ secrets.AZ_PASSWORD }}
+          
 
       - name: Build and Publish Docker Images
         id: build_and_publish
         run: |
           python ./scripts/docker/build_docker.py \
-            --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
-            --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
-            --gcr-project ${{ secrets.GCP_PROJECT_ID }}/gatk-sv \
+            --targets manta \
+            --docker-repo vahid.azureecr.io
             --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
-            --prune-after-each-image
-          CHANGED=$(git diff --quiet ./inputs/values/dockers.json || echo True)
+            --prune-after-each-image \
+            --output-json ./inputs/values/dockers_azure.json \
+            --input-json ./inputs/values/dockers_azure.json
+          CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
           echo "::set-output name=CHANGED::$CHANGED"
 
       - name: Commit Changes to dockers.json
@@ -228,6 +237,6 @@ jobs:
           COMMIT_SHA=${{ needs.build_args_job.outputs.head_sha }}
           git config --global user.name 'gatk-sv-bot'
           git config --global user.email '101641599+gatk-sv-bot@users.noreply.github.com'
-          git commit ./inputs/values/dockers.json -m "Update docker images list, triggered by "${COMMIT_SHA::8}
+          git commit ./inputs/values/dockers_azure.json -m "Update docker images list, triggered by "${COMMIT_SHA::8}
           git pull --rebase origin master
           git push
