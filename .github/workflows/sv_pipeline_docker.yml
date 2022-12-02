@@ -204,7 +204,6 @@ jobs:
         # experimental features are enabled, hence the features are enabled
         # in this flag.
         run: |
-          gcloud auth configure-docker
           tmp=$(mktemp)
           sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
           sudo mv "$tmp" /etc/docker/daemon.json
@@ -216,11 +215,7 @@ jobs:
           login-server: 'vahid.azurecr.io'
           username: ${{ secrets.AZ_USERNAME }}
           password: ${{ secrets.AZ_PASSWORD }}
-          
-
-      - name: Build and Publish Docker Images
-        id: build_and_publish
-        run: |
+      - run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
             --docker-repo vahid.azurecr.io
