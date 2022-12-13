@@ -213,13 +213,10 @@ jobs:
           username: ${{ secrets.AZ_USERNAME }}
           password: ${{ secrets.AZ_PASSWORD }}
       - run: |
-          python ./scripts/docker/build_docker.py \
-            --targets manta \
-            --docker-repo vahid.azurecr.io
-            --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
-            --prune-after-each-image \
-            --output-json ./inputs/values/dockers_azure.json \
-            --input-json ./inputs/values/dockers_azure.json
+          docker run hello-world
+          docker tag hello-world vahid.azurecr.io/hello-world
+          docker push vahid.azurecr.io/hello-world 
+          
           CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
           echo "::set-output name=CHANGED::$CHANGED"
 
