@@ -203,15 +203,8 @@ jobs:
           sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
           sudo mv "$tmp" /etc/docker/daemon.json
           sudo systemctl restart docker.service
-          
-      - name: Azure login
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.AZ_CR }}
-          username: ${{ secrets.AZ_USERNAME }}
-          password: ${{ secrets.AZ_PASSWORD }}
 
-      - name: Build and Publish Docker Images
+      - name: Build and Publish Docker Images to GCR
         id: build_and_publish
         run: |
           python ./scripts/docker/build_docker.py \
@@ -219,6 +212,19 @@ jobs:
             --gcr-project ${{ secrets.GCP_PROJECT_ID }}/gatk-sv
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
           
+          CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
+          echo "::set-output name=CHANGED::$CHANGED"
+
+      - name: Azure login
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZ_CR }}
+          username: ${{ secrets.AZ_USERNAME }}
+          password: ${{ secrets.AZ_PASSWORD }}
+
+      - name: Build and Publish Docker Images to ACR
+        id: build_and_publish
+        run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
             --docker-repo ${{ secrets.AZ_CR }} \
