@@ -223,7 +223,6 @@ jobs:
           password: ${{ secrets.AZ_PASSWORD }}
 
       - name: Build and Publish Docker Images to ACR
-        id: build_and_publish
         run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
