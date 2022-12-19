@@ -216,8 +216,16 @@ jobs:
         run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
-            --docker-repo ${{ secrets.AZ_CR }} \
+            # --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
+            # --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
+            --docker-repo us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/vjalili \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
+          
+          python ./scripts/docker/build_docker.py \
+            --targets manta \
+            --docker-repo ${{ secrets.AZ_CR }} \
+            --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
+            --prune-after-each-image
           
           CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
           echo "::set-output name=CHANGED::$CHANGED"
