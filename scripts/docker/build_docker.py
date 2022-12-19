@@ -150,7 +150,9 @@ class ProjectBuilder:
             launch_script_path: str = Paths.this_script_folder
     ):
         if project_arguments.docker_repo is not None:
+            print("------------------ trying to login")
             os.system("docker login")
+            print("------------------ after login")
 
         self.project_arguments = project_arguments
         self.launch_script_path = launch_script_path
