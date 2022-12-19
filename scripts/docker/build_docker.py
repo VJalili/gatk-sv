@@ -149,8 +149,8 @@ class ProjectBuilder:
             project_arguments: argparse.Namespace,
             launch_script_path: str = Paths.this_script_folder
     ):
-        # if project_arguments.docker_repo is not None:
-            # os.system("docker login")
+        if project_arguments.docker_repo is not None:
+            os.system("docker login")
 
         self.project_arguments = project_arguments
         self.launch_script_path = launch_script_path
@@ -555,15 +555,15 @@ class ImageBuilder:  # class for building and pushing a single image
         docker_push_command = f"docker push {remote_image}"
         print(f"-------------- push command: {docker_push_command}")
         print(docker_push_command)
-        import subprocess
-        process = subprocess.Popen(docker_push_command.split(" "), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = process.communicate()
-        errcode = process.returncode
-        print(f"\n----------- out:\n{out}\n")
-        print(f"\n----------- err:\n{err}\n")
-        print(f"\n----------- code:\n{errcode}\n")
-
-        print("------------- finished running docker push")
+        # import subprocess
+        # process = subprocess.Popen(docker_push_command.split(" "), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # out, err = process.communicate()
+        # errcode = process.returncode
+        # print(f"\n----------- out:\n{out}\n")
+        # print(f"\n----------- err:\n{err}\n")
+        # print(f"\n----------- code:\n{errcode}\n")
+        #
+        # print("------------- finished running docker push")
 
         return os.system(docker_push_command)
 
