@@ -210,7 +210,7 @@ jobs:
         run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
-            --gcr-project ${{ secrets.GCP_PROJECT_ID }}/vjalili
+            --gcr-project ${{ secrets.GCP_PROJECT_ID }}/vjalili \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
           
           CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
