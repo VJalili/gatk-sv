@@ -199,6 +199,7 @@ jobs:
         # experimental features are enabled, hence the features are enabled
         # in this flag.
         run: |
+          gcloud auth configure-docker
           tmp=$(mktemp)
           sudo jq '.+{experimental:true}' /etc/docker/daemon.json > "$tmp"
           sudo mv "$tmp" /etc/docker/daemon.json
@@ -209,7 +210,7 @@ jobs:
         run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
-            --gcr-project ${{ secrets.GCP_PROJECT_ID }}/gatk-sv
+            --gcr-project ${{ secrets.GCP_PROJECT_ID }}/vjalili
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
           
           CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
