@@ -212,11 +212,11 @@ jobs:
           login-server: 'vahid.azurecr.io'
           username: ${{ secrets.AZ_USERNAME }}
           password: ${{ secrets.AZ_PASSWORD }}
-      - run: |
+
           # docker run hello-world
           # docker tag hello-world vahid.azurecr.io/hello-world
           # docker push vahid.azurecr.io/hello-world
-          
+      - run: |          
           python ./scripts/docker/build_docker.py \
             --targets manta \
             --docker-repo vahid.azureecr.io
