@@ -150,7 +150,7 @@ class ProjectBuilder:
             launch_script_path: str = Paths.this_script_folder
     ):
         if project_arguments.docker_repo is not None:
-            os.system("docker login", shell=True)
+            os.system("docker login")
 
         self.project_arguments = project_arguments
         self.launch_script_path = launch_script_path
@@ -553,6 +553,7 @@ class ImageBuilder:  # class for building and pushing a single image
     @staticmethod
     def docker_push(remote_image: str) -> int:
         docker_push_command = f"docker push {remote_image}"
+        print(f"-------------- push command: {docker_push_command}")
         print(docker_push_command)
         return os.system(docker_push_command)
 
