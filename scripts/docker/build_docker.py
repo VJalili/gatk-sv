@@ -149,8 +149,8 @@ class ProjectBuilder:
             project_arguments: argparse.Namespace,
             launch_script_path: str = Paths.this_script_folder
     ):
-        #if project_arguments.docker_repo is not None:
-        #    os.system("docker login")
+        if project_arguments.docker_repo is not None:
+            os.system("docker login", shell=True)
 
         self.project_arguments = project_arguments
         self.launch_script_path = launch_script_path
