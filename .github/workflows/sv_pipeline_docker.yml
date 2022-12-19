@@ -229,3 +229,4 @@ jobs:
           git commit ./inputs/values/dockers_azure.json -m "Update docker images list, triggered by "${COMMIT_SHA::8}
           git pull --rebase origin master
           git push
+
