@@ -229,7 +229,8 @@ jobs:
             --targets manta \
             --docker-repo ${{ secrets.AZ_CR }} \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
-            --prune-after-each-image
+            --prune-after-each-image \
+            --disable-git-protect
           
           CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
           echo "::set-output name=CHANGED::$CHANGED"
