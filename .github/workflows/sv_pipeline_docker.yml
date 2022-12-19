@@ -216,8 +216,6 @@ jobs:
         run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
-            # --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
-            # --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
             --docker-repo us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/vjalili \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
           
