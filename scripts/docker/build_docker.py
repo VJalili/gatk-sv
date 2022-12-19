@@ -555,6 +555,10 @@ class ImageBuilder:  # class for building and pushing a single image
         docker_push_command = f"docker push {remote_image}"
         print(f"-------------- push command: {docker_push_command}")
         print(docker_push_command)
+        import subprocess
+        subprocess.run(docker_push_command.split(" "), shell=True)
+        print("------------- finished running docker push")
+
         return os.system(docker_push_command)
 
 
