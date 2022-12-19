@@ -219,7 +219,7 @@ jobs:
       - run: |          
           python ./scripts/docker/build_docker.py \
             --targets manta \
-            --docker-repo vahid.azurecr.io
+            --docker-repo vahid.azurecr.io \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
           
           CHANGED=$(git diff --quiet ./inputs/values/dockers_azure.json || echo True)
