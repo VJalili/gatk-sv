@@ -216,7 +216,7 @@ jobs:
         run: |
           python ./scripts/docker/build_docker.py \
             --targets manta \
-            --docker-repo us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/vjalili \
+            --gcr-project ${{ secrets.GCP_PROJECT_ID }}/gatk-sv
             --image-tag ${{ needs.build_args_job.outputs.image_tag }}
           
           python ./scripts/docker/build_docker.py \
