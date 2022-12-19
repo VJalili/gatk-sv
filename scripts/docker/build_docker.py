@@ -556,7 +556,13 @@ class ImageBuilder:  # class for building and pushing a single image
         print(f"-------------- push command: {docker_push_command}")
         print(docker_push_command)
         import subprocess
-        subprocess.run(docker_push_command.split(" "), shell=True)
+        process = subprocess.Popen(docker_push_command.split(" "), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = process.communicate()
+        errcode = process.returncode
+        print(f"\n----------- out:\n{out}\n")
+        print(f"\n----------- err:\n{err}\n")
+        print(f"\n----------- code:\n{errcode}\n")
+
         print("------------- finished running docker push")
 
         return os.system(docker_push_command)
