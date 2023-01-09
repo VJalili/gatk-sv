@@ -212,7 +212,7 @@ jobs:
         id: build_and_publish
         run: |
           python ./scripts/docker/build_docker.py \
-            --targets manta \
+            --targets all \
             --docker-repo us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/vjalili \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
             --input-json $DOCKERS_GCP \
@@ -231,7 +231,7 @@ jobs:
       - name: Build and Publish Docker Images to ACR
         run: |
           python ./scripts/docker/build_docker.py \
-            --targets manta \
+            --targets all \
             --docker-repo ${{ secrets.AZ_CR }} \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
             --input-json $DOCKERS_AZURE \
