@@ -17,8 +17,10 @@ FROM $VIRTUAL_ENV_IMAGE as prep_virtual_env
 # get prerequisites for installing google-cloud-cli
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qqy update --fix-missing && \
+    apt-get -qqy build-dep libcurl4-gnutls-dev && \
     apt-get -qqy install --no-upgrade --no-install-recommends \
-                 apt-transport-https ca-certificates wget libssl3
+                 apt-transport-https ca-certificates wget libssl3 \
+                 libcurl4-gnutls-dev
 
 # install google-cloud-cli
 # NOTE --override-components to avoid installing bq (BigQuery)
@@ -32,7 +34,6 @@ RUN wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cl
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     mkdir -p $(basename $GOOGLE_CLOUD_INSTALL_DIR) && \
     mv google-cloud-sdk $GOOGLE_CLOUD_INSTALL_DIR && \
-    libfontconfig1-dev && \
     cd $GOOGLE_CLOUD_INSTALL_DIR && \
     ./install.sh --usage-reporting false --override-components core gsutil && \
     gcloud config set core/disable_usage_reporting true && \
