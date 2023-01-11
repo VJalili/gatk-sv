@@ -32,6 +32,7 @@ RUN wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cl
     tar xzf google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
     mkdir -p $(basename $GOOGLE_CLOUD_INSTALL_DIR) && \
     mv google-cloud-sdk $GOOGLE_CLOUD_INSTALL_DIR && \
+    libfontconfig1-dev && \
     cd $GOOGLE_CLOUD_INSTALL_DIR && \
     ./install.sh --usage-reporting false --override-components core gsutil && \
     gcloud config set core/disable_usage_reporting true && \
