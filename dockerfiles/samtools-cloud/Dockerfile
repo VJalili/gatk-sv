@@ -50,7 +50,6 @@ COPY --from=prep_virtual_env $GOOGLE_CLOUD_INSTALL_DIR $GOOGLE_CLOUD_INSTALL_DIR
 ENV PATH=/opt/google-cloud-sdk/bin:$CONDA_ENV_PATH/bin:$PATH
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qqy update --fix-missing && \
-    apt-get -qqy dist-upgrade && \
     apt-get -qqy install --no-upgrade --no-install-recommends libfontconfig1-dev && \
     apt-get -qqy clean && \
     rm -rf /tmp/* \
