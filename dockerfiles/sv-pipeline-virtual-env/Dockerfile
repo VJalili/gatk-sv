@@ -12,7 +12,7 @@ FROM $SV_BASE_MINI_IMAGE as sv_base_mini
 FROM $PYTHON_VIRTUAL_ENV_IMAGE as python_virtual_env
 
 # install any build dependencies
-ARG BUILD_DEPS="g++ make apt-transport-https ca-certificates wget libcurl4-openssl-dev"
+ARG BUILD_DEPS="g++ make apt-transport-https ca-certificates wget libcurl4-openssl-dev libfontconfig1-dev"
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qqy update --fix-missing && \
     apt-get -qqy install --no-install-recommends $BUILD_DEPS
