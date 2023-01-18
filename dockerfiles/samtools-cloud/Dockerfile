@@ -21,6 +21,7 @@ RUN apt-get -qqy update --fix-missing && \
 # NOTE --override-components to avoid installing bq (BigQuery)
 # NOTE: despite this being a "versioned" package, the installer will insist on upgrading at install time, so this
 #       is difficult to fully pin
+ARG CLOUD_SDK_VERSION
 ARG GOOGLE_CLOUD_INSTALL_DIR
 ENV CLOUDSDK_CONFIG=$GOOGLE_CLOUD_INSTALL_DIR
 ENV PATH=$GOOGLE_CLOUD_INSTALL_DIR/bin:$PATH
