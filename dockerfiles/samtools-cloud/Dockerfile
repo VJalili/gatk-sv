@@ -5,7 +5,7 @@
 ARG MINIBASE_IMAGE=sv-base-mini:latest
 ARG VIRTUAL_ENV_IMAGE=samtoolscloud-virtual-env:latest
 # available gsutil versions here: https://cloud.google.com/sdk/docs/release-notes
-ARG CLOUD_SDK_VERSION=412.0.0
+ARG CLOUD_SDK_VERSION=414.0.0
 ARG CONDA_ENV_NAME="gatk-sv"
 ARG CONDA_INSTALL_DIR=/opt/conda
 ARG GOOGLE_CLOUD_INSTALL_DIR=/opt/google-cloud-sdk
@@ -21,7 +21,6 @@ RUN apt-get -qqy update --fix-missing && \
 # NOTE --override-components to avoid installing bq (BigQuery)
 # NOTE: despite this being a "versioned" package, the installer will insist on upgrading at install time, so this
 #       is difficult to fully pin
-ARG CLOUD_SDK_VERSION
 ARG GOOGLE_CLOUD_INSTALL_DIR
 ENV CLOUDSDK_CONFIG=$GOOGLE_CLOUD_INSTALL_DIR
 ENV PATH=$GOOGLE_CLOUD_INSTALL_DIR/bin:$PATH
