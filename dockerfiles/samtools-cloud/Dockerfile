@@ -61,4 +61,3 @@ RUN apt-get -qqy update --fix-missing && \
 # show the google packages run
 RUN gcloud --version
 RUN gsutil --version
-
