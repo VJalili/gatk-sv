@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[535],{6353:function(e){e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome","permalink":"/gatk-sv/blog/welcome"},{"title":"Hello","permalink":"/gatk-sv/blog/hello-world"},{"title":"Hola","permalink":"/gatk-sv/blog/hola"}]}')}}]);
