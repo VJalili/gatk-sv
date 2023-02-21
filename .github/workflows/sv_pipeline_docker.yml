@@ -3,7 +3,7 @@ name: Docker Images
 on:
   push:
     branches:
-      - master
+      - main
       - test_azure_registry
     paths:
       - 'src/**'
@@ -12,7 +12,7 @@ on:
       - '.github/workflows/sv_pipeline_docker.yml'
   pull_request:
     branches:
-      - master
+      - main
       - test_azure_registry
     paths:
       - 'src/**'
@@ -45,7 +45,7 @@ jobs:
         id: commit_sha
         # This action determines the SHA of two commits:
         # - BASE (BASE_SHA): The commit SHA of the base branch (e.g.,
-        #   broadinstitute/gatk-sv:master) which the feature branch targets.
+        #   broadinstitute/gatk-sv:main) which the feature branch targets.
         # - HEAD (HEAD_SHA): The commit SHA of the latest commit on the
         #   feature branch.
         #
@@ -53,7 +53,7 @@ jobs:
         #
         #     	    X---Y---Z     feature
         #          /         \
-        #     A---B---C---D---E   master
+        #     A---B---C---D---E   main
         #
         # 'E' is the merge commit (e.g., 'Merge pull request #0').
         #
@@ -159,7 +159,7 @@ jobs:
         python-version: ['3.8']
     env:
       DOCKERS_AZURE: "./inputs/values/dockers_azure.json"
-      DOCKERS_GCP: "./inputs/values/dockers_gcp.json"
+      DOCKERS_GCP: "./inputs/values/dockers.json"
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -212,8 +212,9 @@ jobs:
         id: build_and_publish
         run: |
           python ./scripts/docker/build_docker.py \
-            --targets all \
-            --docker-repo us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/vjalili \
+            --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
+            --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
+            --docker-repo us.gcr.io/${{ secrets.GCP_PROJECT_ID }}/gatk-sv \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
             --input-json $DOCKERS_GCP \
             --output-json $DOCKERS_GCP
@@ -231,7 +232,7 @@ jobs:
       - name: Build and Publish Docker Images to ACR
         run: |
           python ./scripts/docker/build_docker.py \
-            --targets all \
+            --targets manta \
             --docker-repo ${{ secrets.AZ_CR }} \
             --image-tag ${{ needs.build_args_job.outputs.image_tag }} \
             --input-json $DOCKERS_AZURE \

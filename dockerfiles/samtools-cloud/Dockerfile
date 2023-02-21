@@ -1,7 +1,7 @@
 # This docker file exists because we need samtools to be able to access GCS buckets
 # so we base off the sv-base-mini image, which has samtools installed, 
 # and only install GCloud SDK here for authentication purpose
-# Start with the barebones image that has samtools (a version that must support NIO) installed 
+# Start with the barebones image that has samtools (a version that must support NIO) installed
 ARG MINIBASE_IMAGE=sv-base-mini:latest
 ARG VIRTUAL_ENV_IMAGE=samtoolscloud-virtual-env:latest
 # available gsutil versions here: https://cloud.google.com/sdk/docs/release-notes
