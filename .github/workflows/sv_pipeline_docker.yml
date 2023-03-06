@@ -36,7 +36,7 @@ jobs:
       image_tag: ${{ steps.image_tag.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # By default, this checks out only the current commit;
           # however, since a diff between the current commit and
@@ -88,9 +88,8 @@ jobs:
           echo "::set-output name=BASE_SHA::$BASE_SHA"
           echo "::set-output name=HEAD_SHA::$HEAD_SHA"
           
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "BASE_SHA_NEW=$BASE_SHA<<$EOF" >> $GITHUB_OUTPUT
-          echo "HEAD_SHA_NEW=$HEAD_SHA<<$EOF" >> $GITHUB_OUTPUT
+          echo "BASE_SHA_NEW=$BASE_SHA" >> $GITHUB_OUTPUT
+          echo "HEAD_SHA_NEW=$HEAD_SHA" >> $GITHUB_OUTPUT
 
       - name: Compose Image Tag
         id: image_tag
@@ -128,7 +127,7 @@ jobs:
         python-version: ['3.8']
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # See the comment on build_args_job.
           fetch-depth: 0
@@ -137,11 +136,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install termcolor
 
       - name: Run build_docker.py
         run: |
@@ -170,7 +164,7 @@ jobs:
       DOCKERS_GCP: "./inputs/values/dockers.json"
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # See the comment on build_args_job.
           fetch-depth: 0
@@ -181,11 +175,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install termcolor
 
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@v0.3.0
