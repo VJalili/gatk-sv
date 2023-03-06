@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - test_azure_registry
+      - test_azure_docker_build
     paths:
       - 'src/**'
       - 'dockerfiles/**'
@@ -14,6 +15,7 @@ on:
     branches:
       - main
       - test_azure_registry
+      - test_azure_docker_build
     paths:
       - 'src/**'
       - 'dockerfiles/**'
