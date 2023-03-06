@@ -9,7 +9,7 @@ const config = {
   title: 'GATK-SV',
   tagline: 'A cloud-native pipeline for calling structural variations on short-read sequencing data',
   url: 'https://broadinstitute.github.io',
-  baseUrl: '/',
+  baseUrl: '/gatk-sv/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
   //favicon: 'img/favicon.ico',
@@ -116,6 +116,12 @@ const config = {
         ],
         copyright: `Copyright © ${new Date().getFullYear()} BroadInstitute, Built with Docusaurus.`,
       },
+      algolia: {
+        appId: 'LI6UMHUDIS',
+        apiKey: '97d929d265c25db1ed1816391a2a719a',
+        indexName: 'gatk-sv',
+        contextualSearch: true
+    },
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
