@@ -29,10 +29,8 @@ jobs:
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
     outputs:
-      base_sha: ${{ steps.commit_sha.outputs.BASE_SHA }}
-      head_sha: ${{ steps.commit_sha.outputs.HEAD_SHA }}
-      base_sha_NEW: ${{ steps.commit_sha.outputs.BASE_SHA_NEw }}
-      head_sha_NEW: ${{ steps.commit_sha.outputs.HEAD_SHA_NEW }}
+      base_sha_NEW: ${{ steps.commit_sha.outputs.BASE_SHA }}
+      head_sha_NEW: ${{ steps.commit_sha.outputs.HEAD_SHA }}
       image_tag: ${{ steps.image_tag.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
@@ -84,10 +82,7 @@ jobs:
           echo "::debug::BASE_SHA: $BASE_SHA"
           echo "::debug::HEAD_SHA: $HEAD_SHA"
 
-          # Avail the determined commit SHAs to other steps.
-          echo "::set-output name=BASE_SHA::$BASE_SHA"
-          echo "::set-output name=HEAD_SHA::$HEAD_SHA"
-          
+          # Avail the determined commit SHAs to other steps.          
           echo "BASE_SHA_NEW=$BASE_SHA" >> $GITHUB_OUTPUT
           echo "HEAD_SHA_NEW=$HEAD_SHA" >> $GITHUB_OUTPUT
 
@@ -208,9 +203,6 @@ jobs:
       - name: Build and Publish Docker Images to GCR
         id: build_and_publish
         run: |
-          echo ${{ needs.build_args_job.outputs.base_sha_NEW }}
-          echo ${{ needs.build_args_job.outputs.head_sha_NEW }}
-          
           python ./scripts/docker/build_docker.py \
             --base-git-commit ${{ needs.build_args_job.outputs.base_sha }} \
             --current-git-commit ${{ needs.build_args_job.outputs.head_sha }} \
