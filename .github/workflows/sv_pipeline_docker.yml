@@ -83,8 +83,8 @@ jobs:
           echo "::debug::HEAD_SHA: $HEAD_SHA"
 
           # Avail the determined commit SHAs to other steps.          
-          echo "BASE_SHA_NEW=$BASE_SHA" >> $GITHUB_OUTPUT
-          echo "HEAD_SHA_NEW=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "BASE_SHA=$BASE_SHA" >> $GITHUB_OUTPUT
+          echo "HEAD_SHA=$HEAD_SHA" >> $GITHUB_OUTPUT
 
       - name: Compose Image Tag
         id: image_tag
@@ -110,7 +110,7 @@ jobs:
           
           IMAGE_TAG=$DATE-$RELEASE_TAG-${COMMIT_SHA::8}
           echo "::debug::Image tag: $IMAGE_TAG"
-          echo "::set-output name=IMAGE_TAG::$IMAGE_TAG"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   build_job:
     runs-on: ubuntu-20.04
@@ -212,7 +212,7 @@ jobs:
             --output-json $DOCKERS_GCP
           
           CHANGED=$(git diff --quiet $DOCKERS_GCP || echo True)
-          echo "::set-output name=CHANGED::$CHANGED"
+          echo "CHANGED=$CHANGED" >> $GITHUB_OUTPUT
 
       - name: Azure login
         uses: azure/docker-login@v1
