@@ -721,6 +721,13 @@ def __parse_arguments(args_list: List[str]) -> argparse.Namespace:
              "Alternatively can specify --base-git-commit/--current-git-commit to automatically determine targets."
     )
 
+    print("\n------------------------------------------------------")
+    import subprocess
+    result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(f"stdout: {result.stdout.decode('utf-8')}")
+    print(f"stderr: {result.stderr.decode('utf-8')}")
+    print("------------------------------------------------------\n\n")
+
     short_git_hash_head = get_command_output("git rev-parse --short HEAD").strip()
     parser.add_argument(
         "--image-tag", type=str, default=short_git_hash_head,
