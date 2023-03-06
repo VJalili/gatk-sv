@@ -29,8 +29,8 @@ jobs:
     env:
       GITHUB_CONTEXT: ${{ toJson(github) }}
     outputs:
-      base_sha_NEW: ${{ steps.commit_sha.outputs.BASE_SHA }}
-      head_sha_NEW: ${{ steps.commit_sha.outputs.HEAD_SHA }}
+      base_sha: ${{ steps.commit_sha.outputs.BASE_SHA }}
+      head_sha: ${{ steps.commit_sha.outputs.HEAD_SHA }}
       image_tag: ${{ steps.image_tag.outputs.IMAGE_TAG }}
     steps:
       - name: Checkout code
