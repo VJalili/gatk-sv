@@ -128,7 +128,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -167,7 +167,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
 
