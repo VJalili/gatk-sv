@@ -330,10 +330,10 @@ task LocalizeReads {
   RuntimeAttr runtime_override = select_first([runtime_attr_override, runtime_default])
   runtime {
     memory: "~{select_first([runtime_override.mem_gb, runtime_default.mem_gb])} GB"
-    disks: "local-disk ~{select_first([runtime_override.disk_gb, runtime_default.disk_gb])} HDD"
+    disk: 10 + " GB" #"~{select_first([runtime_override.disk_gb, runtime_default.disk_gb])} HDD"
     cpu: select_first([runtime_override.cpu_cores, runtime_default.cpu_cores])
-    preemptible: select_first([runtime_override.preemptible_tries, runtime_default.preemptible_tries])
-    maxRetries: select_first([runtime_override.max_retries, runtime_default.max_retries])
+    preemptible: true #select_first([runtime_override.preemptible_tries, runtime_default.preemptible_tries])
+    maxRetries: 3 #select_first([runtime_override.max_retries, runtime_default.max_retries])
     docker: "ubuntu:18.04"
     bootDiskSizeGb: select_first([runtime_override.boot_disk_gb, runtime_default.boot_disk_gb])
   }
@@ -377,10 +377,10 @@ task DeleteIntermediateFiles {
   >>>
   runtime {
     docker: cloud_sdk_docker
-    memory: "1 GB"
-    cpu: "1"
-    disks: "local-disk 10 HDD"
-    preemptible: "3"
-    maxRetries: "1"
+    memory: 1 + " GB"
+    cpu: 1
+    disk: 10 + " GB"
+    preemptible: true
+    maxRetries: 3
   }
 }

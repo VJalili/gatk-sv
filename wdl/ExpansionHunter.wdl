@@ -2,7 +2,15 @@
 
 version 1.0
 
-import "Structs.wdl"
+struct RuntimeAttr {
+    Float? mem_gb
+    Int? cpu_cores
+    Int? disk_gb
+    Int? boot_disk_gb
+    Boolean? preemptible_tries
+    Int? max_retries
+}
+
 
 struct FilenamePostfixes {
     String locus
@@ -211,8 +219,8 @@ task RunExpansionHunter {
         cpu_cores: 1,
         mem_gb: 3.75,
         boot_disk_gb: 10,
-        preemptible_tries: 3,
-        max_retries: 1,
+        preemptible: true,
+        max_retries: 3,
         disk_gb: 10 + (
             2 * ceil(size([
                 bam_or_cram,
@@ -226,9 +234,8 @@ task RunExpansionHunter {
         docker: expansion_hunter_docker
         cpu: select_first([runtime_attr.cpu_cores, runtime_default.cpu_cores])
         memory: select_first([runtime_attr.mem_gb, runtime_default.mem_gb]) + " GiB"
-        disks: "local-disk " + select_first([runtime_attr.disk_gb, runtime_default.disk_gb])  + " SSD"
-        bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, runtime_default.boot_disk_gb])
-        preemptible: select_first([runtime_attr.preemptible_tries, runtime_default.preemptible_tries])
+        disk: select_first([runtime_attr.disk_gb, runtime_default.disk_gb])  + " GB"
+        preemptible: true
         maxRetries: select_first([runtime_attr.max_retries, runtime_default.max_retries])
     }
 }
@@ -321,8 +328,8 @@ task ConcatEHOutputs {
         cpu_cores: 1,
         mem_gb: 4,
         boot_disk_gb: 10,
-        preemptible_tries: 3,
-        max_retries: 1,
+        preemptible: true,
+        max_retries: 3,
         disk_gb: 10 +
             (2 * ceil(
                 size(vcfs_gz, "GiB") +
@@ -336,9 +343,8 @@ task ConcatEHOutputs {
         docker: expansion_hunter_docker
         cpu: select_first([runtime_attr.cpu_cores, runtime_default.cpu_cores])
         memory: select_first([runtime_attr.mem_gb, runtime_default.mem_gb]) + " GiB"
-        disks: "local-disk " + select_first([runtime_attr.disk_gb, runtime_default.disk_gb]) + " SSD"
-        bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, runtime_default.boot_disk_gb])
-        preemptible: select_first([runtime_attr.preemptible_tries, runtime_default.preemptible_tries])
+        disks: select_first([runtime_attr.disk_gb, runtime_default.disk_gb]) + " GB"
+        preemptible: true
         maxRetries: select_first([runtime_attr.max_retries, runtime_default.max_retries])
     }
 }

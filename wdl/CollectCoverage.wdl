@@ -65,10 +65,10 @@ task CollectCounts {
   runtime {
     docker: gatk_docker
     memory: machine_mem_gb + " GiB"
-    disks: "local-disk " + select_first([disk_space_gb, 10]) + if use_ssd then " SSD" else " HDD"
+    disk: select_first([disk_space_gb, 50]) + if use_ssd then " SSD" else " HDD"
     cpu: select_first([cpu, 1])
-    preemptible: select_first([preemptible_attempts, 3])
-    maxRetries: 1
+    preemptible: true
+    maxRetries: 3
   }
 
   output {
@@ -93,9 +93,8 @@ task CondenseReadCounts {
     cpu_cores: 1,
     mem_gb: 3.0,
     disk_gb: 10,
-    boot_disk_gb: 10,
-    preemptible_tries: 3,
-    max_retries: 1
+    preemptible: true,
+    max_retries: 3
   }
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
 
@@ -117,11 +116,10 @@ task CondenseReadCounts {
   runtime {
     cpu: select_first([runtime_attr.cpu_cores, default_attr.cpu_cores])
     memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
-    disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
-    bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, default_attr.boot_disk_gb])
+    disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
     docker: condense_counts_docker
-    preemptible: select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
-    maxRetries: select_first([runtime_attr.max_retries, default_attr.max_retries])
+    preemptible: true
+    maxRetries: 3
   }
 
   output {
@@ -141,11 +139,10 @@ task CountsToIntervals {
 
   RuntimeAttr default_attr = object {
     cpu_cores: 1,
-    mem_gb: 1.0,
+    mem_gb: 1,
     disk_gb: 10,
-    boot_disk_gb: 10,
-    preemptible_tries: 3,
-    max_retries: 1
+    preemptible: true,
+    max_retries: 3
   }
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
 
@@ -158,11 +155,10 @@ task CountsToIntervals {
   runtime {
     cpu: select_first([runtime_attr.cpu_cores, default_attr.cpu_cores])
     memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
-    disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
-    bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, default_attr.boot_disk_gb])
+    disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
     docker: linux_docker
-    preemptible: select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
-    maxRetries: select_first([runtime_attr.max_retries, default_attr.max_retries])
+    preemptible: true
+    maxRetries: 3
   }
 
   output {
