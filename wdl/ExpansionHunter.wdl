@@ -219,7 +219,7 @@ task RunExpansionHunter {
         cpu_cores: 1,
         mem_gb: 3.75,
         boot_disk_gb: 10,
-        preemptible: true,
+        #preemptible: true,
         max_retries: 3,
         disk_gb: 10 + (
             2 * ceil(size([
@@ -328,7 +328,7 @@ task ConcatEHOutputs {
         cpu_cores: 1,
         mem_gb: 4,
         boot_disk_gb: 10,
-        preemptible: true,
+        #preemptible: true,
         max_retries: 3,
         disk_gb: 10 +
             (2 * ceil(
@@ -391,7 +391,7 @@ task RunReviewer {
         cpu_cores: 1,
         mem_gb: 4,
         boot_disk_gb: 10,
-        preemptible_tries: 3,
+        #preemptible_tries: 3,
         max_retries: 1,
         disk_gb: 20 +
             (2 * ceil(

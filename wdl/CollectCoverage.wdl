@@ -93,7 +93,7 @@ task CondenseReadCounts {
     cpu_cores: 1,
     mem_gb: 3.0,
     disk_gb: 10,
-    preemptible: true,
+    #preemptible: true,
     max_retries: 3
   }
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
@@ -141,7 +141,7 @@ task CountsToIntervals {
     cpu_cores: 1,
     mem_gb: 1,
     disk_gb: 10,
-    preemptible: true,
+    #preemptible: true,
     max_retries: 3
   }
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
