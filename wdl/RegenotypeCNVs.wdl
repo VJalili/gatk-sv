@@ -767,6 +767,7 @@ task ConcatRegenotypedVcfs {
   }
   
   runtime {
+    docker: sv_pipeline_docker
     cpu: select_first([runtime_attr.cpu_cores, default_attr.cpu_cores])
     memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
     disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
