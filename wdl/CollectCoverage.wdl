@@ -64,7 +64,8 @@ task CollectCounts {
 
   runtime {
     docker: gatk_docker
-    memory: machine_mem_gb + " GiB"
+    # memory: machine_mem_gb + " GiB"
+    memory: machine_mem_gb + " GB"
     disk: select_first([disk_space_gb, 50]) + if use_ssd then " SSD" else " HDD"
     cpu: select_first([cpu, 1])
     preemptible: true
@@ -93,7 +94,7 @@ task CondenseReadCounts {
     cpu_cores: 1,
     mem_gb: 3.0,
     disk_gb: 10,
-    #preemptible: true,
+    # preemptible: true,
     max_retries: 3
   }
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
@@ -141,7 +142,7 @@ task CountsToIntervals {
     cpu_cores: 1,
     mem_gb: 1,
     disk_gb: 10,
-    #preemptible: true,
+    # preemptible: true,
     max_retries: 3
   }
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
