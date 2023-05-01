@@ -54,8 +54,10 @@ task GetNeededMemGB {
         cpu: 1
         preemptible: 1
         max_retries: 1
-        memory: mem_gb + " GiB"
-        disks: "local-disk " + disk_gb + " HDD"
+        # memory: mem_gb + " GiB"
+        memory: mem_gb + " GB"
+        # disks: "local-disk " + disk_gb + " HDD"
+        disk: disk_gb + " GB"
     }
 
     command <<<
@@ -97,8 +99,10 @@ task ReadAndPickleProperties {
         cpu: 1
         preemptible: 1
         max_retries: 1
-        memory: mem_gb + " GiB"
-        disks: "local-disk " + disk_gb + " HDD"
+        # memory: mem_gb + " GiB"
+        memory: mem_gb + " GB"
+        # disks: "local-disk " + disk_gb + " HDD"
+        disk: disk_gb + " GB"
     }
 
     command <<<

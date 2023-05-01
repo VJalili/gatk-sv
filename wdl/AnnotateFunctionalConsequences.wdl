@@ -89,9 +89,11 @@ task SVAnnotate {
   >>>
   runtime {
     cpu: select_first([runtime_attr.cpu_cores, default_attr.cpu_cores])
-    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
-    disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
-    bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, default_attr.boot_disk_gb])
+    # memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
+    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GB"
+    # disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
+    disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
+    # bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, default_attr.boot_disk_gb])
     docker: gatk_docker
     disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
     preemptible: true

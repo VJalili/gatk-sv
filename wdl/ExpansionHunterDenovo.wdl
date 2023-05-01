@@ -194,9 +194,11 @@ task ComputeSTRProfile {
   runtime {
     docker: ehdn_docker
     cpu: runtime_attr.cpu_cores
-    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
-    disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
-    bootDiskSizeGb: runtime_attr.boot_disk_gb
+    # memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
+    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GB"
+    # disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
+    disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
+    # bootDiskSizeGb: runtime_attr.boot_disk_gb
     preemptible: runtime_attr.preemptible_tries
     maxRetries: runtime_attr.max_retries
   }
@@ -332,9 +334,11 @@ task STRAnalyze {
   runtime {
     docker: ehdn_docker
     cpu: runtime_attr.cpu_cores
-    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
-    disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
-    bootDiskSizeGb: runtime_attr.boot_disk_gb
+    # memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
+    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GB"
+    # disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
+    disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
+    # bootDiskSizeGb: runtime_attr.boot_disk_gb
     preemptible: runtime_attr.preemptible_tries
     maxRetries: runtime_attr.max_retries
   }

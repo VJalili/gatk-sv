@@ -57,7 +57,8 @@ task runIGV_whole_genome{
         docker: igv_docker
         preemptible: 3
         memory: "10 GB"
-        disks: "local-disk 50 HDD"
+        # disks: "local-disk 50 HDD"
+        disk: "50 GB"
         }
     output{
         File pe_plots="~{prefix}.pe_screenshots.tar.gz"

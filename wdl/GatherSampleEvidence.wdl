@@ -330,12 +330,12 @@ task LocalizeReads {
   RuntimeAttr runtime_override = select_first([runtime_attr_override, runtime_default])
   runtime {
     memory: "~{select_first([runtime_override.mem_gb, runtime_default.mem_gb])} GB"
-    disk: 10 + " GB" #"~{select_first([runtime_override.disk_gb, runtime_default.disk_gb])} HDD"
+    disk: "~{select_first([runtime_override.disk_gb, runtime_default.disk_gb])} GB"
     cpu: select_first([runtime_override.cpu_cores, runtime_default.cpu_cores])
     preemptible: true #select_first([runtime_override.preemptible_tries, runtime_default.preemptible_tries])
     maxRetries: 3 #select_first([runtime_override.max_retries, runtime_default.max_retries])
     docker: "ubuntu:18.04"
-    bootDiskSizeGb: select_first([runtime_override.boot_disk_gb, runtime_default.boot_disk_gb])
+    # bootDiskSizeGb: select_first([runtime_override.boot_disk_gb, runtime_default.boot_disk_gb])
   }
 
   Int disk_size = ceil(50 + size(reads_path, "GB"))

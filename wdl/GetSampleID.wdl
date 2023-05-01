@@ -85,7 +85,8 @@ task GetBamID {
     docker: samtools_cloud_docker
     memory: "1 GB"
     cpu: "1"
-    disks: "local-disk 10 HDD"
+    # disks: "local-disk 10 HDD"
+    disk: "10 GB"
     preemptible: "3"
     maxRetries: "1"
   }
@@ -125,7 +126,8 @@ task GetBamIDRequesterPays {
     docker: samtools_cloud_docker
     memory: "1 GB"
     cpu: "1"
-    disks: "local-disk ~{disk_size_gb} HDD"
+    # disks: "local-disk ~{disk_size_gb} HDD"
+    disk: "~{disk_size_gb} GB"
     preemptible: "3"
     maxRetries: "1"
   }
@@ -152,7 +154,8 @@ task InternalSampleID {
     docker: sv_pipeline_docker
     memory: "1 GB"
     cpu: "1"
-    disks: "local-disk 10 HDD"
+    # disks: "local-disk 10 HDD"
+    disk: "10 GB"
     preemptible: "3"
     maxRetries: "1"
   }

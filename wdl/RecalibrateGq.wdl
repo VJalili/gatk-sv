@@ -83,8 +83,10 @@ task RecalibrateGqTask {
         cpu: 1
         preemptible: 3
         max_retries: 1
-        memory: mem_gb + " GiB"
-        disks: "local-disk " + disk_gb + " HDD"
+        # memory: mem_gb + " GiB"
+        memory: mem_gb + " GB"
+        # disks: "local-disk " + disk_gb + " HDD"
+        disk: disk_gb + " GB"
     }
 
     command <<<

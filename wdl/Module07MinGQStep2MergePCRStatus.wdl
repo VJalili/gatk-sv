@@ -128,7 +128,8 @@ task get_sample_lists {
 
   runtime {
     docker: "talkowski/sv-pipeline@sha256:193d18c26100fdd603c569346722513f5796685e990ec3abcaeb4be887062a1a"
-    disks: "local-disk 50 HDD"
+    # disks: "local-disk 50 HDD"
+    disk: "50 GB"
     preemptible: 1
     maxRetries: 1
   }
@@ -172,7 +173,8 @@ task split_PCR_vcf {
 
   runtime {
     docker: "talkowski/sv-pipeline@sha256:193d18c26100fdd603c569346722513f5796685e990ec3abcaeb4be887062a1a"
-    disks: "local-disk 50 HDD"
+    # disks: "local-disk 50 HDD"
+    disk: "50 GB"
     preemptible: 1
     maxRetries: 1
   }
@@ -211,9 +213,11 @@ task Split_Vcf_by_contig {
   
   runtime {
     cpu: select_first([runtime_attr.cpu_cores, default_attr.cpu_cores])
-    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
-    disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
-    bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, default_attr.boot_disk_gb])
+    # memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GiB"
+    memory: select_first([runtime_attr.mem_gb, default_attr.mem_gb]) + " GB"
+    # disks: "local-disk " + select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " HDD"
+    disk: select_first([runtime_attr.disk_gb, default_attr.disk_gb]) + " GB"
+    # bootDiskSizeGb: select_first([runtime_attr.boot_disk_gb, default_attr.boot_disk_gb])
     docker: sv_pipeline_docker
     preemptible: select_first([runtime_attr.preemptible_tries, default_attr.preemptible_tries])
     maxRetries: select_first([runtime_attr.max_retries, default_attr.max_retries])
@@ -265,7 +269,8 @@ task merge_PCR_VCFs {
     preemptible: 1
     maxRetries: 1
     docker: "talkowski/sv-pipeline@sha256:193d18c26100fdd603c569346722513f5796685e990ec3abcaeb4be887062a1a"
-    disks: "local-disk 250 SSD"
+    # disks: "local-disk 250 SSD"
+    disk: "250 GB"
     memory: "4 GB"
   }
 }
@@ -287,7 +292,8 @@ task combine_vcfs {
     preemptible: 0
     maxRetries: 1
     docker: "talkowski/sv-pipeline@sha256:193d18c26100fdd603c569346722513f5796685e990ec3abcaeb4be887062a1a"
-    disks: "local-disk 250 SSD"
+    # disks: "local-disk 250 SSD"
+    disk: "250 GB"
     memory: "4 GB"
   }
 
