@@ -5,7 +5,7 @@ import "Structs.wdl"
 workflow CramToBamReviseBase {
   input {
     File cram_file
-    File? cram_index  # required if cram is requester pays
+    File? cram_index
     File reference_fasta
     File? reference_index
     File contiglist
@@ -22,6 +22,7 @@ workflow CramToBamReviseBase {
     call SplitCramPerContig {
       input:
         cram_file = cram_file,
+        cram_index = cram_index,
         contig = contig,
         reference_fasta = reference_fasta,
         reference_index = reference_index,
@@ -57,17 +58,12 @@ workflow CramToBamReviseBase {
 task SplitCramPerContig {
   input {
     File cram_file
+    File? cram_index
     File reference_fasta
     File? reference_index
     String contig
     String samtools_cloud_docker
     RuntimeAttr? runtime_attr_override
-  }
-
-  parameter_meta {
-    cram_file: {
-      localization_optional: true
-    }
   }
 
   String bam_file_name = basename(cram_file, ".cram")
@@ -77,16 +73,16 @@ task SplitCramPerContig {
   Int num_cpu = if defined(runtime_attr_override) then select_first([select_first([runtime_attr_override]).cpu_cores, 4]) else 4
   
   Float cram_inflate_ratio = 3.5
-  Float disk_overhead = 10.0
+  Float disk_overhead = 50.0
   Float cram_size = size(cram_file, "GiB")
   Float bam_size = (cram_inflate_ratio * cram_size) / 10
   Float ref_size = size(reference_fasta, "GiB")
   Float ref_index_size = size(reference_index_file, "GiB")
-  Int vm_disk_size = ceil(bam_size + ref_size + ref_index_size + disk_overhead)
+  Int vm_disk_size = ceil(bam_size + cram_size + ref_size + ref_index_size + disk_overhead)
 
   RuntimeAttr default_attr = object {
     cpu_cores: num_cpu,
-    mem_gb: 1.5, 
+    mem_gb: 30.75,
     disk_gb: vm_disk_size,
     boot_disk_gb: 10,
     preemptible_tries: 3,
@@ -102,9 +98,6 @@ task SplitCramPerContig {
 
         set -Eeuo pipefail
 
-        # necessary for getting permission to read from google bucket directly
-        export GCS_OAUTH_TOKEN=`gcloud auth application-default print-access-token`
-  
         # covert cram to bam
         samtools view \
                  -b \
@@ -114,9 +107,9 @@ task SplitCramPerContig {
                  -o "~{bam_file_name}.~{contig}.bam" \
                  "~{cram_file}" \
                  "~{contig}"
-        
+
         # index bam file
-        samtools index -@ ~{num_cpu} "~{bam_file_name}.~{contig}.bam"    
+        samtools index -@ ~{num_cpu} "~{bam_file_name}.~{contig}.bam"
   >>>
   runtime {
     cpu: select_first([runtime_attr.cpu_cores, default_attr.cpu_cores])
