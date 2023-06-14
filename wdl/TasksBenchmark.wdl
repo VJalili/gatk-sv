@@ -2,8 +2,8 @@ version 1.0
 
 import "Structs.wdl"
 
-# Merge shards after VaPoR
-task ConcatVaPoR {
+# Merge shards after Vapor
+task ConcatVapor {
   input {
     Array[File] shard_bed_files
     Array[File] shard_plots
@@ -96,7 +96,7 @@ task LocalizeCram {
     mem_gb: 15, 
     disk_gb: 40,
     boot_disk_gb: 10,
-    preemptible_tries: 0,
+    preemptible_tries: 3,
     max_retries: 1
   }
 
@@ -150,7 +150,7 @@ task LocalizeCramRequestPay {
     mem_gb: 3.75, 
     disk_gb: 10,
     boot_disk_gb: 10,
-    preemptible_tries: 0,
+    preemptible_tries: 3,
     max_retries: 1
   }
 
@@ -187,12 +187,13 @@ task LocalizeCramRequestPay {
   }
 }
 
-#extract specific contig from vcf
-task SplitBed {
+# extract specific contig from BED, and sites for sample if provided, and add SVLEN to INS if header contains SVLEN column
+task PreprocessBedForVapor {
   input {
+    String prefix
     String contig
     String? sample_to_extract
-    File bed_file
+    File bed_file  # first 5 columns must be chrom, start, end, name, svtype (or Vapor description). if >5 columns, use header or assume samples is 6th. Need header & SVLEN column unless already appended to INS descriptions
     String sv_pipeline_docker
     RuntimeAttr? runtime_attr_override
   }
@@ -202,22 +203,23 @@ task SplitBed {
     mem_gb: 3.75, 
     disk_gb: 10,
     boot_disk_gb: 10,
-    preemptible_tries: 0,
+    preemptible_tries: 3,
     max_retries: 1
   }
 
   RuntimeAttr runtime_attr = select_first([runtime_attr_override, default_attr])
 
   output {
-    File contig_bed = "~{contig}.bed"
+    File contig_bed = "~{prefix}.bed"
   }
 
   command <<<
-    if [[ ~{bed_file} == *.gz ]] ;  then
-      zcat ~{bed_file} | ~{if defined(sample_to_extract) then "grep ~{sample_to_extract} | cut -f1-5 |" else ""} awk '{if ($1=="~{contig}") print}'  > ~{contig}.bed
-    else
-      ~{if defined(sample_to_extract) then "grep ~{sample_to_extract} | cut -f1-5 |" else ""} awk '{if ($1=="~{contig}") print}' ~{bed_file} > ~{contig}.bed
-    fi
+    set -euo pipefail
+    python /opt/sv-pipeline/scripts/preprocess_bed_for_vapor.py \
+      --contig ~{contig} \
+      --bed-in ~{bed_file} \
+      --bed-out ~{prefix}.bed \
+      ~{"-s " + sample_to_extract}
   >>>
 
   runtime {
@@ -247,7 +249,7 @@ task SplitVcf {
     mem_gb: 3.75, 
     disk_gb: 10,
     boot_disk_gb: 10,
-    preemptible_tries: 0,
+    preemptible_tries: 3,
     max_retries: 1
   }
 
@@ -297,7 +299,7 @@ task vcf2bed {
     mem_gb: 10, 
     disk_gb: 100,
     boot_disk_gb: 10,
-    preemptible_tries: 0,
+    preemptible_tries: 3,
     max_retries: 1
   }
 
