@@ -5,8 +5,6 @@ sidebar_position: 1
 slug: overview
 ---
 
-import CostPlot from "../../src/components/cost_plot.js"
-
 There are two factors to consider when deciding how to run GATK-SV. 
 
 1. **Which platform you would like to use for running GATK-SV?** 
@@ -30,7 +28,7 @@ There are two factors to consider when deciding how to run GATK-SV.
     | Multi-batch (cohort) | >200 samples       |                           ||
 
 
-<CostPlot />
+
 
 
 ## GATK-SV on Terra
