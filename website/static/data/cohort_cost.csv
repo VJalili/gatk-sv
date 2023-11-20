@@ -1,0 +1,2 @@
+,GatherSampleEvidence,EvidenceQC,TrainGCNV,GatherBatchEvidence,ClusterBatch,GenerateBatchMetrics,FilterBatchSites,PlotSVCountsPerSample,FilterBatchSamples,MergeBatchSites,GenotypeBatch,RegenotypeCNVs,CombineBatches,ResolveComplexVariants,GenotypeComplexVariants,CleanVcf,MainVcfQc,AnnotateVcf
+Run 1,49.3,2.4,8.78,32.11,0.16,4.69,0,0,0,0,1.24,0.07,0.35,0.46,0.13,0.17,0.06,0.07
