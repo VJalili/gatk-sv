@@ -511,6 +511,12 @@ task RunMELT {
     # these locations should be stable
     MELT_DIR="/MELT"
 
+    echo "---------"
+    pwd
+    echo "----"
+    ls -la
+    echo "---------"
+
     # `cromwell_root` and `cromwell-executions` are the **default**
     # root directory for cromwell deployments on GCP and Azure respectively.
     # The last option, i.e., $PWD, is the fall back option if the
