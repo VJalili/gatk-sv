@@ -511,10 +511,12 @@ task RunMELT {
     # these locations should be stable
     MELT_DIR="/MELT"
 
-    echo "---------"
+    echo "--------- pwd:"
     pwd
-    echo "----"
+    echo "--------- ls -la"
     ls -la
+    echo "--------- ls -la /cromwell-executions"
+    ls -la /cromwell-executions
     echo "---------"
 
     # `cromwell_root` and `cromwell-executions` are the **default**
