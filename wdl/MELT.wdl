@@ -523,8 +523,8 @@ task RunMELT {
     # we are currently using on GCP and Azure.
     if [ -d "/cromwell_root" ]; then
       CROMWELL_ROOT="/cromwell_root"
-    elif [ -d "/cromwell-executions" ]; then
-      CROMWELL_ROOT="/cromwell-executions"
+    #elif [ -d "/cromwell-executions" ]; then
+    #  CROMWELL_ROOT="/cromwell-executions"
     else
       CROMWELL_ROOT="$PWD"
     fi
