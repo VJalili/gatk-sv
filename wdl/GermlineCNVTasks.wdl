@@ -23,7 +23,7 @@ task AnnotateIntervals {
     RuntimeAttr default_attr = object {
       cpu_cores: 1,
       mem_gb: 1.7,
-      disk_gb: ceil(10.0 + input_size),
+      disk_gb: ceil((30.0 + input_size) * 1.5),
       boot_disk_gb: 10,
       preemptible_tries: 3,
       max_retries: 1
