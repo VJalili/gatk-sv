@@ -24,9 +24,22 @@ workflow GatherSampleEvidence {
     Boolean collect_coverage = true
     Boolean collect_pesr = true
 
+    # Google Cloud Platform (GCP) and Azure users can safely enable and get a slight cost improvement.
+    # Users running on shared file systems should NOT enable this feature.
+    # Enabling this option when running the workflow on GCP or Azure will result in moving the **localized**
+    # files from one path to another on the VM, without impacting the files in their source persistent location.
+    # It will lead to using a slightly smaller disk size and running faster, thereby providing a slight cost improvement.
+    # However, when run on shared file systems (e.g., HPC), it will, by default, create a copy of the
+    # input files, and all subsequent operations will run on the deep copy of the input file.
+    Boolean move_bam_or_cram_files = false
+
     # Convert ambiguous bases (e.g. K, S, Y, etc.) to N
     # Only use if encountering errors (expensive!)
     Boolean revise_base = false
+
+    # Localize reads parameters
+    # set to true on default, skips localize_reads if set to false
+    Boolean run_localize_reads = true
 
     # Common parameters
     File primary_contigs_list
@@ -42,7 +55,7 @@ workflow GatherSampleEvidence {
 
     # Manta inputs
     File manta_region_bed
-    File? manta_region_bed_index
+    File manta_region_bed_index
     Float? manta_jobs_per_cpu
     Int? manta_mem_gb_per_job
 
@@ -60,6 +73,9 @@ workflow GatherSampleEvidence {
     Float? total_reads
     Int? pf_reads_improper_pairs
 
+    # Scramble inputs
+    Int? scramble_part2_threads
+
     # Wham inputs
     File wham_include_list_bed_file
 
@@ -67,7 +83,6 @@ workflow GatherSampleEvidence {
     # Run module metrics workflow at the end - on by default
     Boolean run_module_metrics = true
     File? primary_contigs_fai # required if run_module_metrics = true
-    String? sv_pipeline_base_docker  # required if run_module_metrics = true
     File? baseline_manta_vcf # baseline files are optional for metrics workflow
     File? baseline_wham_vcf
     File? baseline_melt_vcf
@@ -95,7 +110,8 @@ workflow GatherSampleEvidence {
     RuntimeAttr? runtime_attr_melt_coverage
     RuntimeAttr? runtime_attr_melt_metrics
     RuntimeAttr? runtime_attr_melt
-    RuntimeAttr? runtime_attr_scramble
+    RuntimeAttr? runtime_attr_scramble_part1
+    RuntimeAttr? runtime_attr_scramble_part2
     RuntimeAttr? runtime_attr_pesr
     RuntimeAttr? runtime_attr_wham
 
@@ -115,18 +131,22 @@ workflow GatherSampleEvidence {
   File bam_or_cram_index_ = select_first([bam_or_cram_index, bam_or_cram_file + index_ext_])
 
   # move the reads nearby -- handles requester_pays and makes cross-region transfers just once
-  call LocalizeReads {
+  if (run_localize_reads) {
+    call LocalizeReads {
     input:
       reads_path = bam_or_cram_file,
       reads_index = bam_or_cram_index_,
+      move_files = move_bam_or_cram_files,
       runtime_attr_override = runtime_attr_localize_reads
+    }
   }
+
 
   if (revise_base) {
     call rb.CramToBamReviseBase {
       input:
-        cram_file = LocalizeReads.output_file,
-        cram_index = LocalizeReads.output_index,
+        cram_file = select_first([LocalizeReads.output_file, bam_or_cram_file]),
+        cram_index = select_first([LocalizeReads.output_index, bam_or_cram_index]),
         reference_fasta = reference_fasta,
         reference_index = reference_index,
         contiglist = select_first([primary_contigs_fai]),
@@ -137,8 +157,8 @@ workflow GatherSampleEvidence {
     }
   }
 
-  File reads_file_ = select_first([CramToBamReviseBase.bam_file, LocalizeReads.output_file])
-  File reads_index_ = select_first([CramToBamReviseBase.bam_index, LocalizeReads.output_index])
+  File reads_file_ = select_first([CramToBamReviseBase.bam_file, LocalizeReads.output_file, bam_or_cram_file])
+  File reads_index_ = select_first([CramToBamReviseBase.bam_index, LocalizeReads.output_index, bam_or_cram_index])
 
   if (collect_coverage || run_melt) {
     call cov.CollectCounts {
@@ -227,9 +247,12 @@ workflow GatherSampleEvidence {
         bam_or_cram_index = reads_index_,
         sample_name = sample_id,
         reference_fasta = reference_fasta,
-        detect_deletions = false,
+        reference_index = reference_index,
+        regions_list = primary_contigs_list,
+        part2_threads = scramble_part2_threads,
         scramble_docker = select_first([scramble_docker]),
-        runtime_attr_scramble = runtime_attr_scramble
+        runtime_attr_scramble_part1 = runtime_attr_scramble_part1,
+        runtime_attr_scramble_part2 = runtime_attr_scramble_part2
     }
   }
 
@@ -265,7 +288,7 @@ workflow GatherSampleEvidence {
         baseline_wham_vcf = baseline_wham_vcf,
         contig_list = primary_contigs_list,
         contig_index = select_first([primary_contigs_fai]),
-        sv_pipeline_base_docker = select_first([sv_pipeline_base_docker])
+        sv_pipeline_docker = sv_pipeline_docker
     }
   }
 
@@ -298,14 +321,16 @@ workflow GatherSampleEvidence {
   }
 }
 
+
 task LocalizeReads {
   input {
     File reads_path
     File reads_index
+    Boolean move_files = false
     RuntimeAttr? runtime_attr_override
   }
 
-  Float input_size = size(reads_path, "GB")
+  Float input_size = if move_files then size(reads_path, "GB") * 2 else size(reads_path, "GB")
   RuntimeAttr runtime_default = object {
                                   mem_gb: 3.75,
                                   disk_gb: ceil(50.0 + input_size),
@@ -328,8 +353,24 @@ task LocalizeReads {
   Int disk_size = ceil(50 + size(reads_path, "GB"))
 
   command {
-    ln -s ~{reads_path}
-    ln -s ~{reads_index}
+    set -exuo pipefail
+
+    # When this pipeline is run on an HPC, moving files could lead to
+    # moving the files from their original source, compared to moving
+    # them from one directory of the VM to another when run on Cloud.
+    # Therefore, to avoid moving files unexpectedly, we provide both
+    # options for moving and copying, and set the copy as default.
+    # Note that, when copying the files, the task can be slower depending
+    # on the file size and IO performance and will need additional disk
+    # space, hence it will be more expensive to run.
+
+    if ~{move_files}; then
+      mv ~{reads_path} $(basename ~{reads_path})
+      mv ~{reads_index} $(basename ~{reads_index})
+    else
+      cp ~{reads_path} $(basename ~{reads_path})
+      cp ~{reads_index} $(basename ~{reads_index})
+    fi
   }
   output {
     File output_file = basename(reads_path)

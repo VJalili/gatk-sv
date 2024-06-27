@@ -15,6 +15,10 @@ workflow GatherSampleEvidenceBatch {
     Boolean collect_coverage = true
     Boolean collect_pesr = true
 
+    # Localize reads parameters
+    # set to true on default, skips localize_reads if set to false
+    Boolean run_localize_reads = true
+
     # Common parameters
     File primary_contigs_list
     File reference_fasta
@@ -29,7 +33,7 @@ workflow GatherSampleEvidenceBatch {
 
     # Manta inputs
     File manta_region_bed
-    File? manta_region_bed_index
+    File manta_region_bed_index
     Float? manta_jobs_per_cpu
     Int? manta_mem_gb_per_job
 
@@ -47,6 +51,9 @@ workflow GatherSampleEvidenceBatch {
     Array[Float]? total_reads
     Array[Int]? pf_reads_improper_pairs
 
+    # Scramble inputs
+    Int? scramble_part2_threads
+
     # Wham inputs
     File wham_include_list_bed_file
 
@@ -54,7 +61,6 @@ workflow GatherSampleEvidenceBatch {
     # Run module metrics workflow at the end - on by default
     Boolean? run_module_metrics
     String? batch  # required if run_module_metrics = true
-    String? sv_pipeline_base_docker  # required if run_module_metrics = true
     String? linux_docker  # required if run_module_metrics = true
     File? baseline_manta_vcf # baseline files are optional for metrics workflow
     File? baseline_wham_vcf
@@ -80,7 +86,8 @@ workflow GatherSampleEvidenceBatch {
     RuntimeAttr? runtime_attr_melt_coverage
     RuntimeAttr? runtime_attr_melt_metrics
     RuntimeAttr? runtime_attr_melt
-    RuntimeAttr? runtime_attr_scramble
+    RuntimeAttr? runtime_attr_scramble_part1
+    RuntimeAttr? runtime_attr_scramble_part2
     RuntimeAttr? runtime_attr_pesr
     RuntimeAttr? runtime_attr_wham
     RuntimeAttr? runtime_attr_cat_metrics
@@ -124,13 +131,14 @@ workflow GatherSampleEvidenceBatch {
         pct_chimeras = if defined(pct_chimeras) then select_first([pct_chimeras])[i] else NONE_FLOAT_,
         total_reads = if defined(total_reads) then select_first([total_reads])[i] else NONE_FLOAT_,
         pf_reads_improper_pairs = if defined(pf_reads_improper_pairs) then select_first([pf_reads_improper_pairs])[i] else NONE_INT_,
+        scramble_part2_threads=scramble_part2_threads,
         wham_include_list_bed_file = wham_include_list_bed_file,
         run_module_metrics = run_module_metrics_,
-        sv_pipeline_base_docker = sv_pipeline_base_docker,
         baseline_manta_vcf = baseline_manta_vcf,
         baseline_melt_vcf = baseline_melt_vcf,
         baseline_scramble_vcf = baseline_scramble_vcf,
         baseline_wham_vcf = baseline_wham_vcf,
+        run_localize_reads = run_localize_reads,
         sv_pipeline_docker = sv_pipeline_docker,
         sv_base_mini_docker = sv_base_mini_docker,
         samtools_cloud_docker = samtools_cloud_docker,
@@ -147,7 +155,8 @@ workflow GatherSampleEvidenceBatch {
         runtime_attr_melt_coverage = runtime_attr_melt_coverage,
         runtime_attr_melt_metrics = runtime_attr_melt_metrics,
         runtime_attr_melt = runtime_attr_melt,
-        runtime_attr_scramble = runtime_attr_scramble,
+        runtime_attr_scramble_part1 = runtime_attr_scramble_part1,
+        runtime_attr_scramble_part2 = runtime_attr_scramble_part2,
         runtime_attr_pesr = runtime_attr_pesr,
         runtime_attr_wham = runtime_attr_wham
     }

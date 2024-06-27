@@ -176,6 +176,9 @@ class ProjectBuilder:
             docker_dependencies={
                 "sv-base": "SVBASE_IMAGE"}
         ),
+        "scramble": ImageDependencies(
+            git_dependencies=("dockerfiles/scramble/*")
+        ),
         "wham": ImageDependencies(
             git_dependencies="dockerfiles/wham/*",
             docker_dependencies={
@@ -241,6 +244,11 @@ class ProjectBuilder:
             docker_dependencies={
                 "samtools-cloud": "SAMTOOLS_CLOUD_IMAGE",
                 "sv-utils-env": "VIRTUAL_ENV_IMAGE"}
+        ),
+        "denovo": ImageDependencies(
+            git_dependencies=("dockerfiles/denovo/*", "src/denovo/*"),
+            docker_dependencies={
+                "sv-pipeline": "SV_PIPELINE_IMAGE"}
         )
     }
     non_public_images = frozenset({"melt"})
