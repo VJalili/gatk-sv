@@ -1,6 +1,6 @@
 version 1.0
 
-workflow EvidenceQC {
+workflow TestNestedArraysWorkflows {
     input {
         Array[Array[File]] inputFiles
     }
