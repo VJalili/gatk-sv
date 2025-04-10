@@ -12,7 +12,7 @@ FROM $SV_BASE_MINI_IMAGE as sv_base_mini
 FROM $PYTHON_VIRTUAL_ENV_IMAGE as python_virtual_env
 
 # install any build dependencies
-ARG BUILD_DEPS="g++ make apt-transport-https ca-certificates wget libcurl4-openssl-dev"
+ARG BUILD_DEPS="g++ make apt-transport-https ca-certificates wget libcurl4-openssl-dev zlib1g-dev"
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get -qqy update --fix-missing && \
     apt-get -qqy install --no-install-recommends $BUILD_DEPS
@@ -38,14 +38,14 @@ RUN mamba install -qy --freeze-installed -n $CONDA_ENV_NAME -c conda-forge -c bi
 # install, so must be built from source. One last pysam wrinkle: it's install can't handle the newest versions of
 # setuptools, so we're going to downgrade then re-upgrade them just for pysam
 ARG PYSAM_VERSION=0.15.4
-RUN export SETUPTOOLS_VERSION=$(python -c 'import setuptools; print(setuptools.__version__)') && \
-    pip install setuptools==57.5.0 && \
-    wget -q https://github.com/pysam-developers/pysam/archive/refs/tags/v$PYSAM_VERSION.tar.gz && \
-    tar -xzf v$PYSAM_VERSION.tar.gz && \
+RUN export SETUPTOOLS_VERSION=$(python -c 'import setuptools; print(setuptools.__version__)')
+RUN pip install setuptools==57.5.0
+RUN wget -q https://github.com/pysam-developers/pysam/archive/refs/tags/v$PYSAM_VERSION.tar.gz
+RUN tar -xzf v$PYSAM_VERSION.tar.gz && \
     cd pysam-$PYSAM_VERSION && \
-    python setup.py build && \
-    python setup.py install && \
-    pip install setuptools==$SETUPTOOLS_VERSION
+    python setup.py build
+RUN python setup.py install
+RUN pip install setuptools==$SETUPTOOLS_VERSION
 
 # pybedtools needs to be installed via pip because it doesn't like the updated python
 # hail's latest version is only available via pip or local build. Run cache purge in case the base is out of date.
