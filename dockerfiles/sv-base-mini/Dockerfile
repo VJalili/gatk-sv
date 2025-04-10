@@ -1,6 +1,6 @@
 # This is the barebones image for the GATK SV pipeline that includes only
 # some basic bioinformatics utilities.
-ARG UBUNTU_RELEASE="22.04.5"
+ARG UBUNTU_RELEASE="22.04"
 ARG HTSLIB_VERSION="1.15.1"
 ARG BEDTOOLS_VERSION="2.31.0"
 ARG VCFTOOLS_VERSION="0.1.16"
