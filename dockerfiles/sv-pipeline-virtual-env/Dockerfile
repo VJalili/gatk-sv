@@ -41,15 +41,9 @@ ARG PYSAM_VERSION=0.15.4
 RUN export SETUPTOOLS_VERSION=$(python -c 'import setuptools; print(setuptools.__version__)')
 RUN pip install setuptools==57.5.0
 RUN wget -q https://github.com/pysam-developers/pysam/archive/refs/tags/v$PYSAM_VERSION.tar.gz
-RUN tar -xzf v$PYSAM_VERSION.tar.gz
-RUN echo "------------------"
-RUN ls
-RUN echo "------------------"
-RUN cd pysam-$PYSAM_VERSION
-RUN echo "------------------"
-RUN ls
-RUN echo "------------------"
-RUN python setup.py build
+RUN tar -xzf v$PYSAM_VERSION.tar.gz && \
+    cd pysam-$PYSAM_VERSION && \
+    python setup.py build
 RUN python setup.py install
 RUN pip install setuptools==$SETUPTOOLS_VERSION
 
