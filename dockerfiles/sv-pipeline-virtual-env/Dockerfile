@@ -45,7 +45,7 @@ RUN tar -xzf v$PYSAM_VERSION.tar.gz
 RUN echo "------------------"
 RUN ls
 RUN echo "------------------"
-RUN cd pysam-v$PYSAM_VERSION
+RUN cd pysam-$PYSAM_VERSION
 RUN echo "------------------"
 RUN ls
 RUN echo "------------------"
