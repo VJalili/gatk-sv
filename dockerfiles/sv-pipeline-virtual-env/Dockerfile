@@ -38,14 +38,14 @@ RUN mamba install -qy --freeze-installed -n $CONDA_ENV_NAME -c conda-forge -c bi
 # install, so must be built from source. One last pysam wrinkle: it's install can't handle the newest versions of
 # setuptools, so we're going to downgrade then re-upgrade them just for pysam
 ARG PYSAM_VERSION=0.15.4
-RUN export SETUPTOOLS_VERSION=$(python -c 'import setuptools; print(setuptools.__version__)') && \
-    pip install setuptools==57.5.0 && \
-    wget -q https://github.com/pysam-developers/pysam/archive/refs/tags/v$PYSAM_VERSION.tar.gz && \
-    tar -xzf v$PYSAM_VERSION.tar.gz && \
-    cd pysam-$PYSAM_VERSION && \
-    python setup.py build && \
-    python setup.py install && \
-    pip install setuptools==$SETUPTOOLS_VERSION
+RUN export SETUPTOOLS_VERSION=$(python -c 'import setuptools; print(setuptools.__version__)')
+RUN pip install setuptools==57.5.0
+RUN wget -q https://github.com/pysam-developers/pysam/archive/refs/tags/v$PYSAM_VERSION.tar.gz
+RUN tar -xzf v$PYSAM_VERSION.tar.gz
+RUN cd pysam-$PYSAM_VERSION
+RUN python setup.py build
+RUN python setup.py install
+RUN pip install setuptools==$SETUPTOOLS_VERSION
 
 # pybedtools needs to be installed via pip because it doesn't like the updated python
 # hail's latest version is only available via pip or local build. Run cache purge in case the base is out of date.
