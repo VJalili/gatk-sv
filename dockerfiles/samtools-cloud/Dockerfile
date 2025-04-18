@@ -6,7 +6,7 @@
 ARG MINIBASE_IMAGE=sv-base-mini:latest
 ARG VIRTUAL_ENV_IMAGE=samtoolscloud-virtual-env:latest
 # available gsutil versions here: https://cloud.google.com/sdk/docs/release-notes
-ARG CLOUD_SDK_VERSION=414.0.0-0
+ARG CLOUD_SDK_VERSION=518.0.0-0
 ARG CONDA_ENV_NAME="gatk-sv"
 ARG CONDA_INSTALL_DIR=/opt/conda
 ################## install google-cloud-cli into a copy of the virtual image
