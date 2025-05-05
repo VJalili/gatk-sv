@@ -30,7 +30,7 @@ ARG CONDA_ENV_NAME
 # install the desired python version, and just the packages needed by google-cloud-cli
 RUN conda install -qy -c conda-forge mamba=0.22.1 && \
     mamba create -n $CONDA_ENV_NAME -qy -c conda-forge python=$PYTHON_RELEASE \
-      pip=22.0.4 setuptools=62.1.0 wheel=0.37.1 crcmod=1.7
+      pip=25.1.1 setuptools=80.3.1 wheel=0.45.1 crcmod=1.7
 
 # at this stage, we only need python for google-cloud-cli, however, we will want to use conda to install more packages
 # later, so copy the whole conda install over, not just the environment
