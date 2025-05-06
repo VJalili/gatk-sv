@@ -1,5 +1,5 @@
 ARG UBUNTU_RELEASE="22.04"
-ARG CONDA_RELEASE="4.7.12"  # releases listed here: https://github.com/conda/conda/releases
+ARG CONDA_RELEASE="25.3.1"  # releases listed here: https://github.com/conda/conda/releases
 ARG PYTHON_RELEASE="3.10.4"  # get available releases from conda search python
 ARG CONDA_INSTALL_DIR=/opt/conda
 ARG CONDA_ENV_NAME="gatk-sv"
