@@ -25,16 +25,15 @@ RUN wget -q https://github.com/samtools/samtools/releases/download/${HTSLIB_VERS
     cd samtools-${HTSLIB_VERSION} && \
     ./configure --quiet --enable-libcurl --prefix=/opt/samtools && \
     make -s -j $(nproc --all) all all-htslib && \
-    make -s install install-htslib && \
-    cd ..
+    make -s install install-htslib
 
 # install bcftools
-RUN wget -q https://github.com/samtools/bcftools/releases/download/${HTSLIB_VERSION}/bcftools-${HTSLIB_VERSION}.tar.bz2 && \
-    tar xjf bcftools-${HTSLIB_VERSION}.tar.bz2 && \
-    cd bcftools-${HTSLIB_VERSION} && \
-    ./configure --quiet --prefix=/opt/bcftools && \
-    make -s -j $(nproc --all) && \
-    make -s install
+# RUN wget -q https://github.com/samtools/bcftools/releases/download/${HTSLIB_VERSION}/bcftools-${HTSLIB_VERSION}.tar.bz2 && \
+#     tar xjf bcftools-${HTSLIB_VERSION}.tar.bz2 && \
+#     cd bcftools-${HTSLIB_VERSION} && \
+#     ./configure --quiet --prefix=/opt/bcftools && \
+#     make -s -j $(nproc --all) && \
+#     make -s install
 # # install vcftools
 # ARG VCFTOOLS_VERSION
 # RUN wget -q https://github.com/vcftools/vcftools/releases/download/v$VCFTOOLS_VERSION/vcftools-${VCFTOOLS_VERSION}.tar.gz && \
