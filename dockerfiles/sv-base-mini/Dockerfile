@@ -1,8 +1,3 @@
-# Note:
-# The following error is ephemeral:
-# > collect2: error: ld returned 1 exit status
-# It usually resolves with a re-run of the Docker build.
-
 # This is the barebones image for the GATK SV pipeline that includes only
 # some basic bioinformatics utilities.
 ARG UBUNTU_RELEASE="22.04"
@@ -11,6 +6,16 @@ ARG BEDTOOLS_VERSION="2.31.0"
 ARG VCFTOOLS_VERSION="0.1.16"
 ARG BWA_COMMIT="139f68fc4c3747813783a488aef2adc86626b01b"
 
+# You may speed up the compilation of htslib, bcftools, and vcftools by
+# parallelizing the build process. You may dynamically choose thread count
+# at runtime using: -j $(nproc --all)
+# However, that runs into uncommon error (maybe race condition) with the
+# following error message:
+# > collect2: error: ld returned 1 exit status
+#
+# While running with a single-thread is slower, but the process is more
+# reproducible and reliable. You may override the following argument
+# and be mindful of the above possible error.
 ARG THREAD_COUNT="1"
 
 ARG APT_REQUIRED_PACKAGES="/opt/apt-required-packages.list"
@@ -24,8 +29,6 @@ RUN apt-get -qqy update --fix-missing && \
     apt-get -qqy install --no-install-recommends \
         ca-certificates autoconf automake bzip2 g++ git make wget pkgconf python2 \
         libssl-dev libbz2-dev libcurl4-openssl-dev liblzma-dev libncurses-dev zlib1g-dev libdeflate-dev
-
-# make -s -j $(nproc --all) all all-htslib
 
 # install samtools
 ARG HTSLIB_VERSION
