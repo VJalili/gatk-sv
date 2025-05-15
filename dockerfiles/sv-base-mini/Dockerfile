@@ -34,16 +34,17 @@ RUN wget -q https://github.com/samtools/bcftools/releases/download/${HTSLIB_VERS
     ./configure --quiet --prefix=/opt/bcftools && \
     make -s -j $(nproc --all) && \
     make -s install
-# # install vcftools
-# ARG VCFTOOLS_VERSION
-# RUN wget -q https://github.com/vcftools/vcftools/releases/download/v$VCFTOOLS_VERSION/vcftools-${VCFTOOLS_VERSION}.tar.gz && \
-#     tar zxf vcftools-${VCFTOOLS_VERSION}.tar.gz && \
-#     cd vcftools-${VCFTOOLS_VERSION} && \
-#     export PERL5LIB=$(pwd)/src/perl/ && \
-#     ./configure --quiet --prefix=/opt/vcftools && \
-#     make -s -j $(nproc --all) && \
-#     make -s install
-#
+
+# install vcftools
+ARG VCFTOOLS_VERSION
+RUN wget -q https://github.com/vcftools/vcftools/releases/download/v$VCFTOOLS_VERSION/vcftools-${VCFTOOLS_VERSION}.tar.gz && \
+    tar zxf vcftools-${VCFTOOLS_VERSION}.tar.gz && \
+    cd vcftools-${VCFTOOLS_VERSION} && \
+    export PERL5LIB=$(pwd)/src/perl/ && \
+    ./configure --quiet --prefix=/opt/vcftools && \
+    make -s -j $(nproc --all) && \
+    make -s install
+
 # # install bedtools
 # #   during install, bedtools needs python2 to be callable as "python"
 # RUN ln -s /usr/bin/python2 /usr/bin/python
