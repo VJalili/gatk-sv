@@ -26,7 +26,7 @@ RUN wget -q https://github.com/samtools/samtools/releases/download/${HTSLIB_VERS
     ./configure --quiet --enable-libcurl --prefix=/opt/samtools && \
     make -s -j $(nproc --all) all all-htslib && \
     make -s install install-htslib
-install bcftools
+# install bcftools
 RUN wget -q https://github.com/samtools/bcftools/releases/download/${HTSLIB_VERSION}/bcftools-${HTSLIB_VERSION}.tar.bz2 && \
     tar xjf bcftools-${HTSLIB_VERSION}.tar.bz2 && \
     cd bcftools-${HTSLIB_VERSION} && \
