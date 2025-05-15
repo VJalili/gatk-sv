@@ -1,3 +1,8 @@
+# Note:
+# The following error is ephemeral:
+# > collect2: error: ld returned 1 exit status
+# It usually resolves with a re-run of the Docker build.
+
 # This is the barebones image for the GATK SV pipeline that includes only
 # some basic bioinformatics utilities.
 ARG UBUNTU_RELEASE="22.04"
@@ -18,13 +23,15 @@ RUN apt-get -qqy update --fix-missing && \
         ca-certificates autoconf automake bzip2 g++ git make wget pkgconf python2 \
         libssl-dev libbz2-dev libcurl4-openssl-dev liblzma-dev libncurses-dev zlib1g-dev libdeflate-dev
 
+# make -s -j $(nproc --all) all all-htslib
+
 # install samtools
 ARG HTSLIB_VERSION
 RUN wget -q https://github.com/samtools/samtools/releases/download/${HTSLIB_VERSION}/samtools-${HTSLIB_VERSION}.tar.bz2 && \
     tar xjf samtools-${HTSLIB_VERSION}.tar.bz2 && \
     cd samtools-${HTSLIB_VERSION} && \
     ./configure --quiet --enable-libcurl --prefix=/opt/samtools && \
-    make -s -j $(nproc --all) all all-htslib && \
+    make -s -j 1 all all-htslib && \
     make -s install install-htslib
 
 # install bcftools
@@ -32,7 +39,7 @@ RUN wget -q https://github.com/samtools/bcftools/releases/download/${HTSLIB_VERS
     tar xjf bcftools-${HTSLIB_VERSION}.tar.bz2 && \
     cd bcftools-${HTSLIB_VERSION} && \
     ./configure --quiet --prefix=/opt/bcftools && \
-    make -s -j $(nproc --all) && \
+    make -s -j 1 && \
     make -s install
 
 # install vcftools
@@ -42,7 +49,7 @@ RUN wget -q https://github.com/vcftools/vcftools/releases/download/v$VCFTOOLS_VE
     cd vcftools-${VCFTOOLS_VERSION} && \
     export PERL5LIB=$(pwd)/src/perl/ && \
     ./configure --quiet --prefix=/opt/vcftools && \
-    make -s -j $(nproc --all) && \
+    make -s -j 1 && \
     make -s install
 
 # # install bedtools
