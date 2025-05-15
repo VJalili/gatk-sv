@@ -17,16 +17,16 @@ RUN apt-get -qqy update --fix-missing && \
     apt-get -qqy install --no-install-recommends \
         ca-certificates autoconf automake bzip2 g++ git make wget pkgconf python2 \
         libssl-dev libbz2-dev libcurl4-openssl-dev liblzma-dev libncurses-dev zlib1g-dev libdeflate-dev
-#
-# # install samtools
-# ARG HTSLIB_VERSION
-# RUN wget -q https://github.com/samtools/samtools/releases/download/${HTSLIB_VERSION}/samtools-${HTSLIB_VERSION}.tar.bz2 && \
-#     tar xjf samtools-${HTSLIB_VERSION}.tar.bz2 && \
-#     cd samtools-${HTSLIB_VERSION} && \
-#     ./configure --quiet --enable-libcurl --prefix=/opt/samtools && \
-#     make -s -j $(nproc --all) all all-htslib && \
-#     make -s install install-htslib
-# # install bcftools
+
+# install samtools
+ARG HTSLIB_VERSION
+RUN wget -q https://github.com/samtools/samtools/releases/download/${HTSLIB_VERSION}/samtools-${HTSLIB_VERSION}.tar.bz2 && \
+    tar xjf samtools-${HTSLIB_VERSION}.tar.bz2 && \
+    cd samtools-${HTSLIB_VERSION} && \
+    ./configure --quiet --enable-libcurl --prefix=/opt/samtools && \
+    make -s -j $(nproc --all) all all-htslib && \
+    make -s install install-htslib
+# install bcftools
 # RUN wget -q https://github.com/samtools/bcftools/releases/download/${HTSLIB_VERSION}/bcftools-${HTSLIB_VERSION}.tar.bz2 && \
 #     tar xjf bcftools-${HTSLIB_VERSION}.tar.bz2 && \
 #     cd bcftools-${HTSLIB_VERSION} && \
