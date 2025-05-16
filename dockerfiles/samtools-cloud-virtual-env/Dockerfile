@@ -1,5 +1,5 @@
 ARG UBUNTU_RELEASE="22.04"
-ARG CONDA_RELEASE="25.3.1"  # releases listed here: https://github.com/conda/conda/releases
+ARG CONDA_RELEASE="py39_25.3.1-1"  # releases listed here: https://repo.anaconda.com/miniconda/
 ARG PYTHON_RELEASE="3.10.4"  # get available releases from conda search python
 ARG CONDA_INSTALL_DIR=/opt/conda
 ARG CONDA_ENV_NAME="gatk-sv"
@@ -16,7 +16,7 @@ RUN apt-get -qqy update --fix-missing && \
 # install conda
 ARG CONDA_RELEASE
 ARG CONDA_INSTALL_DIR
-RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-${CONDA_RELEASE}-Linux-x86_64.sh -O /tmp/miniconda.sh && \
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-${CONDA_RELEASE}-Linux-x86_64.sh -O /tmp/miniconda.sh && \
     /bin/bash /tmp/miniconda.sh -b -p ${CONDA_INSTALL_DIR}
 
 # update python to desired version, and install mamba for faster package management
