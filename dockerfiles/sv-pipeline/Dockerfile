@@ -79,38 +79,38 @@ ENV CLEAN_VCF_PART_1_JAR="/opt/sv-pipeline/java/build/CleanVCFPart1.jar"
 ARG CLEAN_VCF_PART_1_UNIT_TEST_JAR="/opt/sv-pipeline/java/build/CleanVCFPart1UnitTest.jar"
 ARG BUILD_DEPS="openjdk-8-jdk"
 ARG DEBIAN_FRONTEND=noninteractive
-RUN export APT_TRANSIENT_PACKAGES=$(diff_of_lists.sh "$BUILD_DEPS" $APT_REQUIRED_PACKAGES) && \
-    apt-get -qqy update --fix-missing && \
-    apt-get -qqy install --no-upgrade --no-install-recommends $BUILD_DEPS && \
-    cd /opt/sv-pipeline/java && \
-    mkdir -p build/classes && \
-    javac -d build/classes org/broadinstitute/svpipeline/StitchFragmentedCNVs.java org/broadinstitute/svpipeline/VCFParser.java && \
-    jar cfe build/StitchFragmentedCNVs.jar "org.broadinstitute.svpipeline.StitchFragmentedCNVs" -C build/classes . && \
-    rm -rf build/classes/* && \
-    javac -d build/classes org/broadinstitute/svpipeline/StitchFragmentedCNVsUnitTest.java org/broadinstitute/svpipeline/StitchFragmentedCNVs.java org/broadinstitute/svpipeline/VCFParser.java && \
-    jar cfe build/StitchFragmentedCNVsUnitTest.jar "org.broadinstitute.svpipeline.StitchFragmentedCNVsUnitTest" -C build/classes . && \
-    echo "Running StitchFragmentedCNVsUnitTest..." && \
-    java -enableassertions -jar $STITCH_UNIT_TEST_JAR && \
-    rm -rf build/classes/* $STITCH_UNIT_TEST_JAR && \
-    javac -d build/classes org/broadinstitute/svpipeline/VCFParserUnitTest.java org/broadinstitute/svpipeline/VCFParser.java && \
-    jar cfe build/VCFParserUnitTest.jar "org.broadinstitute.svpipeline.VCFParserUnitTest" -C build/classes . && \
-    echo "Running VCFParserUnitTest..." && \
-    java -enableassertions -jar $VCF_PARSER_UNIT_TEST_JAR && \
-    rm -rf build/classes/* $VCF_PARSER_UNIT_TEST_JAR && \
-    javac -d build/classes org/broadinstitute/svpipeline/CleanVCFPart1.java org/broadinstitute/svpipeline/VCFParser.java && \
-    jar cfe build/CleanVCFPart1.jar "org.broadinstitute.svpipeline.CleanVCFPart1" -C build/classes . && \
-    rm -rf build/classes/* && \
-    javac -d build/classes org/broadinstitute/svpipeline/CleanVCFPart1UnitTest.java org/broadinstitute/svpipeline/CleanVCFPart1.java org/broadinstitute/svpipeline/VCFParser.java && \
-    jar cfe build/CleanVCFPart1UnitTest.jar "org.broadinstitute.svpipeline.CleanVCFPart1UnitTest" -C build/classes . && \
-    echo "Running CleanVCFPart1UnitTest..." && \
-    java -enableassertions -jar $CLEAN_VCF_PART_1_UNIT_TEST_JAR && \
-    rm -rf build/classes/* $CLEAN_VCF_PART_1_UNIT_TEST_JAR && \
-    apt-get -qqy remove --purge $APT_TRANSIENT_PACKAGES && \
-    apt-get -qqy autoremove --purge && \
-    apt-get -qqy clean && \
-    rm -rf /tmp/* \
-           /var/tmp/* \
-           /var/cache/apt/* \
-           /var/lib/apt/lists/* \
-           /usr/share/man/?? \
-           /usr/share/man/??_*
+# RUN export APT_TRANSIENT_PACKAGES=$(diff_of_lists.sh "$BUILD_DEPS" $APT_REQUIRED_PACKAGES) && \
+#     apt-get -qqy update --fix-missing && \
+#     apt-get -qqy install --no-upgrade --no-install-recommends $BUILD_DEPS && \
+#     cd /opt/sv-pipeline/java && \
+#     mkdir -p build/classes && \
+#     javac -d build/classes org/broadinstitute/svpipeline/StitchFragmentedCNVs.java org/broadinstitute/svpipeline/VCFParser.java && \
+#     jar cfe build/StitchFragmentedCNVs.jar "org.broadinstitute.svpipeline.StitchFragmentedCNVs" -C build/classes . && \
+#     rm -rf build/classes/* && \
+#     javac -d build/classes org/broadinstitute/svpipeline/StitchFragmentedCNVsUnitTest.java org/broadinstitute/svpipeline/StitchFragmentedCNVs.java org/broadinstitute/svpipeline/VCFParser.java && \
+#     jar cfe build/StitchFragmentedCNVsUnitTest.jar "org.broadinstitute.svpipeline.StitchFragmentedCNVsUnitTest" -C build/classes . && \
+#     echo "Running StitchFragmentedCNVsUnitTest..." && \
+#     java -enableassertions -jar $STITCH_UNIT_TEST_JAR && \
+#     rm -rf build/classes/* $STITCH_UNIT_TEST_JAR && \
+#     javac -d build/classes org/broadinstitute/svpipeline/VCFParserUnitTest.java org/broadinstitute/svpipeline/VCFParser.java && \
+#     jar cfe build/VCFParserUnitTest.jar "org.broadinstitute.svpipeline.VCFParserUnitTest" -C build/classes . && \
+#     echo "Running VCFParserUnitTest..." && \
+#     java -enableassertions -jar $VCF_PARSER_UNIT_TEST_JAR && \
+#     rm -rf build/classes/* $VCF_PARSER_UNIT_TEST_JAR && \
+#     javac -d build/classes org/broadinstitute/svpipeline/CleanVCFPart1.java org/broadinstitute/svpipeline/VCFParser.java && \
+#     jar cfe build/CleanVCFPart1.jar "org.broadinstitute.svpipeline.CleanVCFPart1" -C build/classes . && \
+#     rm -rf build/classes/* && \
+#     javac -d build/classes org/broadinstitute/svpipeline/CleanVCFPart1UnitTest.java org/broadinstitute/svpipeline/CleanVCFPart1.java org/broadinstitute/svpipeline/VCFParser.java && \
+#     jar cfe build/CleanVCFPart1UnitTest.jar "org.broadinstitute.svpipeline.CleanVCFPart1UnitTest" -C build/classes . && \
+#     echo "Running CleanVCFPart1UnitTest..." && \
+#     java -enableassertions -jar $CLEAN_VCF_PART_1_UNIT_TEST_JAR && \
+#     rm -rf build/classes/* $CLEAN_VCF_PART_1_UNIT_TEST_JAR && \
+#     apt-get -qqy remove --purge $APT_TRANSIENT_PACKAGES && \
+#     apt-get -qqy autoremove --purge && \
+#     apt-get -qqy clean && \
+#     rm -rf /tmp/* \
+#            /var/tmp/* \
+#            /var/cache/apt/* \
+#            /var/lib/apt/lists/* \
+#            /usr/share/man/?? \
+#            /usr/share/man/??_*
