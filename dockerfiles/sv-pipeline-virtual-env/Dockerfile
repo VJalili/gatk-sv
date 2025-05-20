@@ -39,7 +39,7 @@ RUN mamba install -qy --freeze-installed -n $CONDA_ENV_NAME -c conda-forge -c bi
 # setuptools, so we're going to downgrade then re-upgrade them just for pysam
 ARG PYSAM_VERSION=0.23.0
 # RUN export SETUPTOOLS_VERSION=$(python -c 'import setuptools; print(setuptools.__version__)') && \
-#     pip install setuptools==80.3.1 && \
+#     pip install setuptools==80.1.0 && \
 #     wget -q https://github.com/pysam-developers/pysam/archive/refs/tags/v$PYSAM_VERSION.tar.gz && \
 #     tar -xzf v$PYSAM_VERSION.tar.gz && \
 #     cd pysam-$PYSAM_VERSION && \
